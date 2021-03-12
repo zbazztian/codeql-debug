@@ -23,12 +23,13 @@ jobs:
 
     - run: |
         echo "nothing to do here"
-        echo codeql-path ${{ steps.codeqlinit.outputs.codeql-path }}
-        printenv
-      shell: bash
-
-    - name: test
-      uses: zbazztian/codeql-debug@master
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
+
+    - name: test
+      uses: zbazztian/codeql-debug@master
+      with:
+        codeql-path: ${{ steps.codeqlinit.outputs.codeql-path }}
+        language: ${{ matrix.language }}
+        db-path: /home/runner/work/_temp/codeql_databases/javascript

@@ -19,5 +19,5 @@ runs:
       shell: bash
     - name: test2
       run: |
-        python3 "${{ github.action_path }}/process.py"
+        python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ inputs.db-path }}"
       shell: bash
