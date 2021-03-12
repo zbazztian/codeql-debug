@@ -6,3 +6,4 @@ runs:
     - name: test
       run: |
         echo "hello"
+        printenv
