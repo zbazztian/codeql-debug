@@ -1,0 +1,285 @@
+@import "compass/reset";
+@import "compass/css3/font-face";
+@import "compass/css3/transition";
+
+@import url("http://fast.fonts.net/t/1.css?apiType=css&projectid=3af16084-ba56-49ca-b37d-0b49b59e1927");
+@include font-face("AleoRegular", font-files("//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Regular-webfont.woff", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Regular-webfont.ttf", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Regular-webfont.svg"), "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Regular-webfont.eot");
+@include font-face("AleoBold", font-files("//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Bold-webfont.woff", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Bold-webfont.ttf", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Bold-webfont.svg"), "//cartodb-assets.global.ssl.fastly.net/odyssey.js/Aleo-Bold-webfont.eot");
+@include font-face("ProximaNovaBold", font-files("//cartodb-assets.global.ssl.fastly.net/odyssey.js/d999c07b-a049-4eb5-b8a6-4f36ae25e67e.woff", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/4d4a75f5-d32a-4a09-8665-133afd39cc37.ttf", "//cartodb-assets.global.ssl.fastly.net/odyssey.js/8152bc4e-d700-4c78-b6be-326893e6f53f.svg"), "//cartodb-assets.global.ssl.fastly.net/odyssey.js/fbc6b03a-b3a1-427c-a884-053deca3a53c.eot");
+
+body {
+  overflow: hidden;
+}
+
+#map { position: absolute;  top: 0; left: 0; width:100%; height: 100%; }
+
+#slides_container {
+  display: none;
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: 320px;
+  padding: 40px;
+  padding-right: 20px;
+  background-color: #fff;
+  background-color: rgba(255,255,255,0.7);
+  z-index: 10;
+
+  &.visible {
+    display: block !important;
+  }
+
+  .slide {
+    display: none;
+    overflow-y: auto;
+    padding-right: 20px;
+
+    &.selected {
+      display: block !important;
+    }
+
+    &.scrolled {
+      img {
+        margin: 20px 0;
+        width: 100%;
+        }
+    }
+
+    strong {
+      font-family: "AleoBold";
+    }
+
+    em {
+      font-style: italic;
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6{
+    font-family: 'Proxima N W01 Bold', Sans-serif;
+    color: #333;
+    font-size: 45px;
+    // text-transform: uppercase;
+
+    &:after{
+      display: block;
+      margin: 20px 0 20px 0;
+      height: 3px;
+      content: " ";
+      text-shadow: none;
+      background-color: #333;
+      width: 140px;
+    }
+  }
+
+  h2, h3, h4, h5, h6{
+    font-size: 19px;
+
+    &:after{
+      height: 1px;
+      margin: 18px 0 18px 0;
+      width: 180px;
+    }
+  }
+
+
+  p, span{
+    font-family: AleoRegular, Serif;
+    color: #333;
+    font-size: 15px;
+    line-height: 21px;
+    margin: 0 0 19px 0;
+  }
+
+  a{
+    color: #FF7373;
+    text-decoration: none;
+
+    &:hover{
+      text-decoration: underline;
+    }
+  }
+}
+
+#front_slide.hidden {
+  display: none;
+}
+
+#dots{
+  margin: 0 0 20px 0;
+
+  li{
+    display: inline;
+
+    a{
+      opacity: 0.2;
+      color: #333;
+
+      &:before {
+        content: ' \25CF';
+        font-size: 16px;
+      }
+
+      &.active{ opacity: 1; }
+      &:hover{
+        opacity: 1;
+        cursor: pointer;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+
+
+#slides_container img{
+	//max-width: 400px;
+	margin: 20px 0;
+	max-width: 100%;
+}
+
+ul#navButtons{
+  margin: 20px 0 0 0;
+
+  li{
+    width: 30px;
+    display: inline;
+
+    a{
+      display: inline-block;
+      width: 23px;
+      height: 30px;
+      background: transparent image-url("navBtns.png") no-repeat -10px 0 ;
+      &:hover{ background-position: -10px -30px; cursor: pointer;}
+
+      &.next{
+        background: transparent image-url("navBtns.png") no-repeat -30px 0;
+        &:hover{ background-position: -30px -30px;}
+      }
+    }
+  }
+}
+
+div#credits{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background-color: #FFF;
+  z-index: 1000001;
+  a {
+     color: #ff7373;
+  }
+  span{
+    padding: 18px 0 0 0;
+    position: absolute;
+    font-size: 12px;
+    text-transform: uppercase;
+
+    &.title{
+      left: 40px;
+      font-family: 'Proxima N W01 Bold', Sans-serif;
+      color: #333;
+    }
+
+    &.author{
+      right: 40px;
+      font-family: AleoRegular, Serif;
+      color: #999;
+      letter-spacing: 2px;
+      font-size: 10px;
+      text-align: right;
+    }
+
+  }
+}
+
+.slide-tip {
+  position: absolute;
+  top: -18px;
+  width: 3px;
+  height: 37px;
+  border: 3px solid transparent;
+  border-top: 0;
+  border-bottom-color: #ddd;
+  text-align: center;
+
+  &:hover {
+    .tooltip {
+      display: inline-block !important;
+    }
+
+    &:after {
+      background: #ccc;
+      width: 3px;
+    }
+  }
+
+  &:after {
+    content: "";
+    display: inline-block;
+    background: #ddd;
+    width: 1px;
+    height: 40px;
+    @include transition(all .15s ease-in-out);
+  }
+
+  .tooltip {
+    position: absolute;
+    display: none;
+    background: rgba(#000, 0.85);
+    bottom: 50px;
+    max-width: 200px;
+    padding: 10px;
+    margin-left: -17px;
+    box-shadow: 0 0 1px rgba(#fff, .2);
+    border-radius: 2px;
+    color: #FFF;
+    line-height: 1;
+    text-align: left;
+    font-size: 12px;
+    white-space: nowrap;
+
+
+    h1, p {
+      height: auto;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+      color: #EEE;
+      font-weight: normal;
+      line-height: 1.1;
+      width: auto;
+    }
+
+    h1 {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+
+    p {
+      white-space: nowrap;
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      position: absolute;
+      bottom: -5px;
+      left: 10px;
+      border-top: 5px solid rgba(#000, .85);
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+    }
+  }
+}
+
+div.cartodb-timeslider .ui-slider .ui-slider-range {
+  background-color: #FF7373;
+}
+
+.cartodb-timeslider {
+  bottom: 50px !important;
+  left: 40px !important;
+}

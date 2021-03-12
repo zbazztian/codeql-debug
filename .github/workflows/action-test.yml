@@ -1,14 +1,26 @@
+name: "Action Test"
 on: [push]
 
 jobs:
-  hello_world_job:
+  debug:
+    name: CodeQL Debug Analysis Job
     runs-on: ubuntu-latest
-    name: A job to say hello
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
     steps:
+    - name: Checkout repository
     - uses: actions/checkout@v2
-    - id: foo
-      uses: zbazztian/composite-action@master
+
+    - name: Debug init
+      uses: zbazztian/composite-action/init@master
       with:
-        who-to-greet: 'Mona the Octocat'
-    - run: echo random-number ${{ steps.foo.outputs.random-number }}
-      shell: bash
+        languages: ${{ matrix.language }}
+
+    - run: |
+        echo "nothing to do here"
+
+    - name: Perform CodeQL Debug Analysis
+      uses: zbazztian/compound-action/analyze@master

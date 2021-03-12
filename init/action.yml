@@ -1,0 +1,15 @@
+name: 'Debug Init'
+description: 'Debugging CodeQL databases'
+inputs:
+  languages:
+    description: 'Languages to analyze'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ inputs.languages }}
+    - run: ${{ github.action_path }}/init/goodbye.sh
+      shell: bash

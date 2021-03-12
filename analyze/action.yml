@@ -1,0 +1,16 @@
+name: 'Debug Analysis'
+description: 'Debug Analysis'
+runs:
+  using: "composite"
+  steps:
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
+      with:
+        upload: False
+        output: sarif-results
+    - name: Upload SARIF as a Build Artifact
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: sarif-results
+        path: sarif-results
+        retention-days: 1
