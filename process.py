@@ -2,6 +2,7 @@ import sys
 import glob
 import os.path
 import subprocess
+import csv
 
 def get(array, i, default):
   v = None
@@ -52,6 +53,7 @@ args = [
   codeql, 'database', 'analyze',
   '--output', 'results.csv',
   '--format', 'csv',
+  '--no-group-results',
   dbpath,
   os.path.join(
     here,
@@ -66,3 +68,26 @@ output = subprocess.run(
   check=True
 )
 print(output.stdout.decode())
+
+
+with open('results.html', 'w') as htmlf:
+  htmlf.write('<html>\n')
+  htmlf.write('<body>\n')
+  with open('results.csv') as f:
+    for row in csv.reader(f):
+      startcol = int(row[6])
+      endcol = int(row[8])
+      htmlf.write(
+        '{labels}: <a href="{serverurl}/{repo_id}/blob/{sha}/{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
+          labels='|'.join(row[3].split('\n')),
+          serverurl='https://github.com/',
+          repo_id=repo_id,
+          sha=sha,
+          fname=row[4],
+          startline=row[5],
+          endline=row[7]
+        )
+      )
+
+  htmlf.write('</body>\n')
+  htmlf.write('</html>\n')
