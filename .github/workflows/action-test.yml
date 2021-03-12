@@ -25,5 +25,8 @@ jobs:
         echo codeql-path ${{ steps.codeqlinit.outputs.codeql-path }}
       shell: bash
 
+    - name: test
+      uses: zbazztian/codeql-debug@master
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
