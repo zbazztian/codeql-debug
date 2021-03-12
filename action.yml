@@ -9,15 +9,11 @@ inputs:
     required: true
   db-path:
     description: 'Path to the database for which to emit debug infos'
-    required: true
+    required: false
 runs:
   using: "composite"
   steps:
     - name: test
       run: |
-        "${{ inputs.codeql-path }}" version
-      shell: bash
-    - name: test2
-      run: |
-        python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ inputs.db-path }}"
+        python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ inputs.codeql-path }}" "${{ inputs.db-path }}"
       shell: bash
