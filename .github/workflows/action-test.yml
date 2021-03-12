@@ -23,6 +23,7 @@ jobs:
     - run: |
         echo "nothing to do here"
         echo codeql-path ${{ steps.codeqlinit.outputs.codeql-path }}
+        printenv
       shell: bash
 
     - name: test
