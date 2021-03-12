@@ -1,10 +1,23 @@
 name: 'Debug Analysis'
 description: 'Debug Analysis'
+inputs:
+  codeql-path:
+    description: 'Path to the CodeQL executable'
+    required: true
+  language:
+    description: 'Language of the database to analyze'
+    required: true
+  db-path:
+    description: 'Path to the database for which to emit debug infos'
+    required: true
 runs:
   using: "composite"
   steps:
     - name: test
       run: |
-        echo "hello"
-        printenv
+        "${{ inputs.codeql-path }}" version
+      shell: bash
+    - name: test2
+      run: |
+        python3 "${{ github.action_path }}/process.py"
       shell: bash
