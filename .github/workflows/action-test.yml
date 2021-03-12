@@ -14,13 +14,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Debug init
-      uses: zbazztian/codeql-debug/init@master
+    - name: Initialize CodeQL
+      id: codeqlinit
+      uses: github/codeql-action/init@v1
       with:
         languages: ${{ matrix.language }}
 
     - run: |
         echo "nothing to do here"
+        echo codeql-path ${{ steps.codeqlinit.outputs.codeql-path }}
+      shell: bash
 
-    - name: Perform CodeQL Debug Analysis
-      uses: zbazztian/codeql-debug/analyze@master
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
