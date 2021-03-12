@@ -1,3 +1,3 @@
-name: javascript-empty-pack
+name: javascript-debug-pack
 version: 1.0.0
 libraryPathDependencies: codeql-javascript
