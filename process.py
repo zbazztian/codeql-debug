@@ -9,6 +9,7 @@ def get(array, i, default):
     v = array[i]
   return v if v else default
 
+here = os.path.dirname(sys.argv[0])
 lang = sys.argv[1]
 codeql = get(
   sys.argv,
@@ -38,6 +39,15 @@ print(output.stdout.decode())
 
 output = subprocess.run(
   [codeql, 'resolve', 'qlpacks'],
+  capture_output=True,
+  check=True
+)
+print(output.stdout.decode())
+
+args = [codeql, 'database', 'analyze', '--output', 'results.csv', '--format', 'csv', dbpath, os.path.join(here, lang + '-debug-pack', 'xss-sources-and-sinks.ql')]
+print(args)
+output = subprocess.run(
+  args,
   capture_output=True,
   check=True
 )
