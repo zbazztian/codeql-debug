@@ -3,10 +3,11 @@ import glob
 import os.path
 import subprocess
 
-def get(array, i, default):
+def getarg(array, i, default):
+  v = None
   if i < len(array):
-    return array[i]
-  return default
+    v = array[i]
+  return v if v else default
 
 lang = sys.argv[1]
 codeql = get(
