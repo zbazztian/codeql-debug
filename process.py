@@ -53,7 +53,7 @@ print(output.stdout.decode())
 
 args = [
   codeql, 'database', 'analyze',
-  '--output', 'results.csv',
+  '--output', 'codeql-debug-results.csv',
   '--format', 'csv',
   '--no-group-results',
   dbpath,
@@ -71,10 +71,9 @@ output = subprocess.run(
 )
 print(output.stdout.decode())
 
-
 nodes = {}
 
-with open('results.csv') as f:
+with open('codeql-debug-results.csv', 'r') as f:
   for row in csv.reader(f):
     nodetype = row[3]
     fname = row[4]
@@ -86,8 +85,10 @@ with open('results.csv') as f:
       nodes[nodetype] = []
     nodes[nodetype].append((fname, startline, endline))
 
+debug_results_dir = 'codeql-debug-results'
+os.makedirs(debug_results_dir)
 
-with open('results.html', 'w') as f:
+with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('<html>\n')
   f.write('<body>\n')
   f.write('<h1>Summary</h1>\n')
@@ -97,16 +98,18 @@ with open('results.html', 'w') as f:
   f.write('  <th align="left">Count</th>\n')
   f.write('</tr>\n')
 
-  for n in nodes:
+  sorted_nodes = sorted([n for n in nodes])
+
+  for n in sorted_nodes:
     f.write('<tr>\n')
-    f.write('  <td>{nodetype}</td>\n'.format(nodetype=n))
+    f.write('  <td><a href="#{nodetype}">{nodetype}</a></td>\n'.format(nodetype=n))
     f.write('  <td>{count}</td>\n'.format(count=str(len(nodes[n]))))
     f.write('</tr>\n')
 
   f.write('</table>\n')
   f.write('<h1>Details</h1>\n')
 
-  for n in nodes:
+  for n in sorted_nodes:
     f.write('<h2>{nodetype}</h2>\n'.format(nodetype=n))
     for r in nodes[n]:
       f.write(
