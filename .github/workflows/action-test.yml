@@ -32,6 +32,6 @@ jobs:
     - name: Debug
       uses: zbazztian/codeql-debug@master
       with:
-        codeql-path: ${{ env.codeql-path }}
+        codeql-path: ${{ steps.codeqlinit.outputs.codeql-path }}
         language: ${{ matrix.language }}
         db-path: /home/runner/work/_temp/codeql_databases/javascript
