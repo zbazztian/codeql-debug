@@ -26,10 +26,12 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
+      with:
+        upload: false
 
-    - name: test
+    - name: Debug
       uses: zbazztian/codeql-debug@master
       with:
-        codeql-path: ${{ steps.codeqlinit.outputs.codeql-path }}
+        codeql-path: ${{ env.codeql-path }}
         language: ${{ matrix.language }}
         db-path: /home/runner/work/_temp/codeql_databases/javascript
