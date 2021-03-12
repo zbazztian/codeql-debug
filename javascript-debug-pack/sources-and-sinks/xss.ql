@@ -59,66 +59,6 @@ import semmle.javascript.security.dataflow.XssThroughDom::XssThroughDom as XSSTD
 // import semmle.javascript.security.dataflow.InsufficientPasswordHash::InsufficientPasswordHash as IPH
 // import semmle.javascript.security.dataflow.RequestForgery::RequestForgery as RF
 
-
-/*
- * from DataFlow::Node n, string type, string sourceOrSink, TaintTracking::Configuration cfg
- * where
- *  (
- *    (
- *      cfg instanceof DBXSS::HtmlInjectionConfiguration or
- *      cfg instanceof DBXSS::JQueryHtmlOrSelectorInjectionConfiguration or
- *      cfg instanceof EXSS::Configuration or
- *      cfg instanceof RXSS::Configuration or
- *      cfg instanceof SXSS::Configuration or
- *      cfg instanceof UJQP::Configuration or
- *      cfg instanceof XSSTD::Configuration
- *    ) and
- *    type = "XSS (CWE-079)"
- *    or
- *    (
- *      cfg instanceof SQLI::Configuration or
- *      cfg instanceof NSQLI::Configuration
- *    ) and
- *    type = "SQL Injection (CWE-089)"
- *    or
- *    (
- *      cfg instanceof CMDI::Configuration or
- *      cfg instanceof ICI::Configuration or
- *      cfg instanceof SCIFE::Configuration or
- *      cfg instanceof USCC::Configuration
- *    ) and
- *    type = "Command Injection (CWE-078)"
- *    or
- *    (cfg instanceof TP::Configuration or cfg instanceof ZS::Configuration) and
- *    type = "Tainted Path (CWE-022)"
- *    or
- *    (
- *      cfg instanceof CI::Configuration or
- *      cfg instanceof ICS::Configuration or
- *      cfg instanceof UDMA::Configuration
- *    ) and
- *    type = "Code Injection (CWE-094)"
- *    or
- *    cfg instanceof IHAS::Configuration and type = "Incomplete Sanitization (CWE-116)"
- *    or
- *    cfg instanceof LI::LogInjectionConfiguration and type = "Log Injection (CWE-117)"
- *    or
- *    cfg instanceof TFS::Configuration and type = "Tainted Format String (CWE-134)"
- *    or
- *    cfg instanceof FATH::Configuration and type = "File Access To HTTP (CWE-200)"
- *    or
- *    cfg instanceof PMS::Configuration and type = "Post Message Star (CWE-201)"
- *    or
- *    cfg instanceof STE::Configuration and type = "Stack Trace Exposure (CWE-209)"
- *  ) and
- *  (
- *    cfg.isSource(n) and sourceOrSink = "Source"
- *    or
- *    cfg.isSink(n) and sourceOrSink = "Sink"
- *  )
- * select n, sourceOrSink + " of type " + type
- */
-
 from TaintTracking::Configuration c, DataFlow::Node n, string type
 where c.isSource(n) and type = "Source" or c.isSink(n) and type = "Sink"
-select n, type + " of " + c
+select n, c + type

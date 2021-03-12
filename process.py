@@ -3,6 +3,7 @@ import glob
 import os.path
 import subprocess
 import csv
+import os
 
 def get(array, i, default):
   v = None
@@ -20,6 +21,7 @@ codeql = get(
 dbpath = get(sys.argv, 3, '/home/runner/work/_temp/codeql_databases/' + lang)
 repo_id = get(sys.argv, 4, None)
 sha = get(sys.argv, 5, None)
+server_url = os.environ['GITHUB_SERVER_URL']
 
 if not os.path.isdir(dbpath):
   print('Given path is not a database: ' + dbpath)
@@ -70,24 +72,53 @@ output = subprocess.run(
 print(output.stdout.decode())
 
 
-with open('results.html', 'w') as htmlf:
-  htmlf.write('<html>\n')
-  htmlf.write('<body>\n')
-  with open('results.csv') as f:
-    for row in csv.reader(f):
-      startcol = int(row[6])
-      endcol = int(row[8])
-      htmlf.write(
-        '{labels}: <a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
-          labels='|'.join(row[3].split('\n')),
-          serverurl='https://github.com/',
+nodes = {}
+
+with open('results.csv') as f:
+  for row in csv.reader(f):
+    nodetype = row[3]
+    fname = row[4]
+    startline = row[5]
+    startcol = row[6]
+    endline = row[7]
+    endcol = row[8]
+    if nodetype not in nodes:
+      nodes[nodetype] = []
+    nodes[nodetype].append((fname, startline, endline))
+
+
+with open('results.html', 'w') as f:
+  f.write('<html>\n')
+  f.write('<body>\n')
+  f.write('<h1>Summary</h1>\n')
+  f.write('<table>\n')
+  f.write('<tr>\n')
+  f.write('  <th align="left">Type</th>\n')
+  f.write('  <th align="left">Count</th>\n')
+  f.write('</tr>\n')
+
+  for n in nodes:
+    f.write('<tr>\n')
+    f.write('  <td>{nodetype}</td>\n'.format(nodetype=n))
+    f.write('  <td>{count}</td>\n'.format(count=str(len(nodes[n]))))
+    f.write('</tr>\n')
+
+  f.write('</table>\n')
+  f.write('<h1>Details</h1>\n')
+
+  for n in nodes:
+    f.write('<h2>{nodetype}</h2>\n'.format(nodetype=n))
+    for r in nodes[n]:
+      f.write(
+        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
+          serverurl=server_url,
           repo_id=repo_id,
           sha=sha,
-          fname=row[4],
-          startline=row[5],
-          endline=row[7]
+          fname=r[0],
+          startline=r[1],
+          endline=r[2]
         )
       )
 
-  htmlf.write('</body>\n')
-  htmlf.write('</html>\n')
+  f.write('</body>\n')
+  f.write('</html>\n')
