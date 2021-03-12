@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Debug init
-      uses: zbazztian/composite-action/init@master
+      uses: zbazztian/codeql-debug/init@master
       with:
         languages: ${{ matrix.language }}
 
@@ -23,4 +23,4 @@ jobs:
         echo "nothing to do here"
 
     - name: Perform CodeQL Debug Analysis
-      uses: zbazztian/compound-action/analyze@master
+      uses: zbazztian/codeql-debug/analyze@master
