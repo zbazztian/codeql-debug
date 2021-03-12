@@ -13,6 +13,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: blurbo
+      run: |
+        printenv
+      shell: bash
     - name: test
       run: |
         python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ inputs.codeql-path }}" "${{ inputs.db-path }}" "${{ github.repository }}" "${{ github.sha }}"

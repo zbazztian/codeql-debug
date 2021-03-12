@@ -78,7 +78,7 @@ with open('results.html', 'w') as htmlf:
       startcol = int(row[6])
       endcol = int(row[8])
       htmlf.write(
-        '{labels}: <a href="{serverurl}/{repo_id}/blob/{sha}/{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
+        '{labels}: <a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
           labels='|'.join(row[3].split('\n')),
           serverurl='https://github.com/',
           repo_id=repo_id,
