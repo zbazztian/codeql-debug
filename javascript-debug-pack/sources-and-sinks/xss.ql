@@ -1,5 +1,5 @@
 /**
- * @name Sources
+ * @name Sources and Sinks
  * @kind problem
  * @problem.severity warning
  * @id js/xss-sources-and-sinks

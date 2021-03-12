@@ -17,6 +17,8 @@ codeql = get(
   get(glob.glob('/opt/hostedtoolcache/CodeQL/*/x64/codeql/codeql'), 0, '')
 )
 dbpath = get(sys.argv, 3, '/home/runner/work/_temp/codeql_databases/' + lang)
+repo_id = get(sys.argv, 4, None)
+sha = get(sys.argv, 5, None)
 
 if not os.path.isdir(dbpath):
   print('Given path is not a database: ' + dbpath)
@@ -29,6 +31,8 @@ if not os.path.isfile(codeql):
 print(codeql)
 print(dbpath)
 print(lang)
+print(repo_id)
+print(sha)
 
 output = subprocess.run(
   [codeql, 'version'],
