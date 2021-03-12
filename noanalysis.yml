@@ -1,3 +1,3 @@
 disable-default-queries: true
 queries:
-  - uses: zbazztian/codeql-debug/javascript-empty-pack/noresults.ql@master
+  - uses: zbazztian/codeql-debug/javascript-debug-pack/noresults.ql@master

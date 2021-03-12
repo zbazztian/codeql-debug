@@ -3,7 +3,7 @@ import glob
 import os.path
 import subprocess
 
-def getarg(array, i, default):
+def get(array, i, default):
   v = None
   if i < len(array):
     v = array[i]
