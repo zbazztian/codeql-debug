@@ -44,8 +44,18 @@ output = subprocess.run(
 )
 print(output.stdout.decode())
 
-args = [codeql, 'database', 'analyze', '--output', 'results.csv', '--format', 'csv', dbpath, os.path.join(here, lang + '-debug-pack', 'xss-sources-and-sinks.ql')]
-print(args)
+args = [
+  codeql, 'database', 'analyze',
+  '--output', 'results.csv',
+  '--format', 'csv',
+  dbpath,
+  os.path.join(
+    here,
+    lang + '-debug-pack',
+    'sources-and-sinks.qls'
+  )
+]
+print(' '.join(args))
 output = subprocess.run(
   args,
   capture_output=True,
