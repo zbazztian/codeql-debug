@@ -6,4 +6,5 @@
  * @precision high
  * @id js/noresults
  */
-select any(int i | i = 0 and i = 1)
+import javascript
+select any(IfStmt l), any(int i | i = 0 and i = 1).toString()
