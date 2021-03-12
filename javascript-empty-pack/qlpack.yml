@@ -1,3 +1,5 @@
 name: javascript-empty-pack
 version: 1.0.0
-libraryPathDependencies: codeql-javascript
+libraryPathDependencies:
+  - codeql-java
+  - codeql-javascript
