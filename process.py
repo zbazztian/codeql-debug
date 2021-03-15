@@ -102,7 +102,9 @@ for qlf in glob.glob(os.path.join(
   )
 
   with open(source_and_sink_counts_csv, 'r') as f:
-    for row in csv.reader(f):
+    reader = csv.reader(f)
+    next(reader, None)  # skip headers
+    for row in reader:
       nodetype = row[0]
       count = row[1]
       node_counts[nodetype] = count
