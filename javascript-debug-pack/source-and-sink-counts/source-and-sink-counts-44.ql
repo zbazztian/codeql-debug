@@ -1,12 +1,12 @@
 /**
- * @name Source and Sink Counts 32
+ * @name Source and Sink Counts 44
  * @kind metric
  * @metricType sum
  * @problem.severity recommendation
- * @id js/source-and-sink-counts-32
+ * @id js/source-and-sink-counts-44
  */
 import javascript
-import semmle.javascript.security.dataflow.ClientSideUrlRedirect::ClientSideUrlRedirect as CONFIG
+import semmle.javascript.security.dataflow.TypeConfusionThroughParameterTampering::TypeConfusionThroughParameterTampering as CONFIG
 from TaintTracking::Configuration c, string type, int amount
 where amount = strictcount(DataFlow::Node n | c.isSource(n)) and type = "Source"
    or amount = strictcount(DataFlow::Node n | c.isSink(n)) and type = "Sink"
