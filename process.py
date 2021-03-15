@@ -102,7 +102,7 @@ for qlf in glob.glob(os.path.join(
 
   with open(source_and_sink_counts_csv, 'r') as f:
     for row in csv.reader(f):
-      print('"' + row + '"')
+      print('"' + str(row) + '"')
       nodetype = row[0]
       count = row[1]
       node_counts[nodetype] = node_counts.get(nodetype, 0) + count
