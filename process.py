@@ -105,7 +105,7 @@ for qlf in glob.glob(os.path.join(
     for row in csv.reader(f):
       nodetype = row[0]
       count = row[1]
-      node_counts[nodetype] = node_counts.get(nodetype, 0) + count
+      node_counts[nodetype] = count
 
 
 codeql(
@@ -149,7 +149,7 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   for n in sorted_node_types:
     f.write('<tr>\n')
     f.write('  <td><a href="#{nodetype}">{nodetype}</a></td>\n'.format(nodetype=n))
-    f.write('  <td>{count}</td>\n'.format(count=str(len(node_counts[n]))))
+    f.write('  <td>{count}</td>\n'.format(count=str(node_counts[n])))
     f.write('</tr>\n')
 
   f.write('</table>\n')
