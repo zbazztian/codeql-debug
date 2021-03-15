@@ -1,10 +1,10 @@
-name: "Action Test"
+name: "CodeQL Debugging"
 on: [push]
 
 jobs:
   debug:
-    name: CodeQL Debug Analysis Job
-    runs-on: ubuntu-latest
+    name: CodeQL Debug Job
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -21,15 +21,12 @@ jobs:
         config-file: zbazztian/codeql-debug/noanalysis.yml@master
         languages: ${{ matrix.language }}
 
-    - run: |
-        echo "nothing to do here"
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
       with:
         upload: false
 
-    - name: Debug
+    - name: Debug Analysis
       uses: zbazztian/codeql-debug@master
       with:
         language: ${{ matrix.language }}
