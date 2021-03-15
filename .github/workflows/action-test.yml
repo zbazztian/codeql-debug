@@ -21,9 +21,6 @@ jobs:
         config-file: zbazztian/codeql-debug/noanalysis.yml@master
         languages: ${{ matrix.language }}
 
-    - run: set
-      shell: cmd
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
       with:
