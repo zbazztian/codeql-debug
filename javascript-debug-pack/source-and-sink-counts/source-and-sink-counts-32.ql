@@ -1,10 +1,3 @@
-/**
- * @name Source and Sink Counts 32
- * @kind metric
- * @metricType sum
- * @problem.severity recommendation
- * @id js/source-and-sink-counts-32
- */
 import javascript
 import semmle.javascript.security.dataflow.ClientSideUrlRedirect::ClientSideUrlRedirect as CONFIG
 from TaintTracking::Configuration c, string type, int amount

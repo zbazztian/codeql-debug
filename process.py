@@ -14,7 +14,7 @@ def get(array, i, default):
 here = os.path.dirname(sys.argv[0])
 lang = sys.argv[1]
 runner_tool_cache = os.environ['RUNNER_TOOL_CACHE']
-codeql = get(
+codeql_executable = get(
   sys.argv,
   2,
   get(
@@ -38,33 +38,40 @@ repo_id = get(sys.argv, 4, None)
 sha = get(sys.argv, 5, None)
 server_url = os.environ['GITHUB_SERVER_URL']
 
+def codeql(*args):
+  args = [codeql_executable] + list(args)
+  print(' '.join(args))
+  try:
+    output = subprocess.run(
+      args,
+      capture_output=True,
+      check=True
+    )
+    print(output.stdout.decode())
+  except CalledProcessError as cpe:
+    print('Command failed with exit code: ' + str(cpe.returncode))
+    print('stdout:')
+    print(cpe.output.decode())
+    print('stderr:')
+    print(cpe.stderr.decode())
+
 if not os.path.isdir(dbpath):
   print('Given path is not a database: ' + dbpath)
   sys.exit(1)
 
-if not os.path.isfile(codeql):
-  print('Given path is not a CodeQL executable: ' + codeql)
+if not os.path.isfile(codeql_executable):
+  print('Given path is not a CodeQL executable: ' + codeql_executable)
   sys.exit(1)
 
-print('codeql executable: ' + codeql)
+print('codeql executable: ' + codeql_executable)
 print('codeql database: ' + dbpath)
 print('codeql language: ' + lang)
 print('repository id: ' + repo_id)
 print('sha: ' + sha)
 
-output = subprocess.run(
-  [codeql, 'version'],
-  capture_output=True,
-  check=True
-)
-print(output.stdout.decode())
-
-output = subprocess.run(
-  [codeql, 'resolve', 'qlpacks'],
-  capture_output=True,
-  check=True
-)
-print(output.stdout.decode())
+# run some diagnostic output
+codeql('version')
+codeql('resolve', 'qlpacks')
 
 debug_results_dir = 'codeql-debug-results'
 os.makedirs(debug_results_dir)
@@ -81,32 +88,17 @@ for qlf in glob.glob(os.path.join(
   'source-and-sink-counts',
   '*.ql'
 )):
-  args = [
-    codeql, 'query', 'run',
+  codeql(
+    'query', 'run',
     '--output', source_and_sink_counts_bqrs,
     '-d', dbpath,
     qlf
-  ]
-  print(' '.join(args))
-  output = subprocess.run(
-    args,
-    capture_output=True,
-    check=True
   )
-  print(output.stdout.decode())
-
-  args = [
-    codeql, 'bqrs', 'decode',
+  codeql(
+    'bqrs', 'decode',
     '--output', source_and_sink_counts_csv,
     source_and_sink_counts_bqrs
-  ]
-  print(' '.join(args))
-  output = subprocess.run(
-    args,
-    capture_output=True,
-    check=True
   )
-  print(output.stdout.decode())
 
   with open(source_and_sink_counts_csv, 'r') as f:
     for row in csv.reader(f):
@@ -115,8 +107,8 @@ for qlf in glob.glob(os.path.join(
       node_counts[nodetype] = node_counts.get(nodetype, 0) + count
 
 
-args = [
-  codeql, 'database', 'analyze',
+codeql(
+  'database', 'analyze',
   '--output', sources_and_sinks_csv,
   '--format', 'csv',
   '--no-group-results',
@@ -126,15 +118,7 @@ args = [
     lang + '-debug-pack',
     'sources-and-sinks.qls'
   )
-]
-print(' '.join(args))
-output = subprocess.run(
-  args,
-  capture_output=True,
-  check=True
 )
-print(output.stdout.decode())
-
 
 nodes = {}
 sorted_node_types = sorted([n for n in node_counts])
