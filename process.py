@@ -13,12 +13,14 @@ def get(array, i, default):
 
 here = os.path.dirname(sys.argv[0])
 lang = sys.argv[1]
+runner_tool_cache = os.environ['RUNNER_TOOL_CACHE']
 codeql = get(
   sys.argv,
   2,
-  get(glob.glob('/opt/hostedtoolcache/CodeQL/*/x64/codeql/codeql'), 0, '')
+  get(glob.glob(os.path.join(runner_tool_cache, 'CodeQL', '*', 'x64', 'codeql', 'codeql')), 0, '')
 )
-dbpath = get(sys.argv, 3, '/home/runner/work/_temp/codeql_databases/' + lang)
+runner_temp = os.environ['RUNNER_TEMP']
+dbpath = get(sys.argv, 3, os.path.join(runner_temp, 'codeql_databases', lang))
 repo_id = get(sys.argv, 4, None)
 sha = get(sys.argv, 5, None)
 server_url = os.environ['GITHUB_SERVER_URL']
