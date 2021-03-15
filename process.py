@@ -40,20 +40,20 @@ server_url = os.environ['GITHUB_SERVER_URL']
 
 def codeql(*args):
   args = [codeql_executable] + list(args)
-  print(' '.join(args))
+  print(' '.join(args), flush=True)
   try:
     output = subprocess.run(
       args,
       capture_output=True,
       check=True
     )
-    print(output.stdout.decode())
+    print(output.stdout.decode(), flush=True)
   except CalledProcessError as cpe:
     print('Command failed with exit code: ' + str(cpe.returncode))
     print('stdout:')
     print(cpe.output.decode())
     print('stderr:')
-    print(cpe.stderr.decode())
+    print(cpe.stderr.decode(), flush=True)
 
 if not os.path.isdir(dbpath):
   print('Given path is not a database: ' + dbpath)
@@ -63,11 +63,11 @@ if not os.path.isfile(codeql_executable):
   print('Given path is not a CodeQL executable: ' + codeql_executable)
   sys.exit(1)
 
-print('codeql executable: ' + codeql_executable)
-print('codeql database: ' + dbpath)
-print('codeql language: ' + lang)
-print('repository id: ' + repo_id)
-print('sha: ' + sha)
+print('codeql executable: ' + codeql_executable, flush=True)
+print('codeql database: ' + dbpath, flush=True)
+print('codeql language: ' + lang, flush=True)
+print('repository id: ' + repo_id, flush=True)
+print('sha: ' + sha, flush=True)
 
 # run some diagnostic output
 codeql('version')
@@ -102,6 +102,7 @@ for qlf in glob.glob(os.path.join(
 
   with open(source_and_sink_counts_csv, 'r') as f:
     for row in csv.reader(f):
+      print('"' + row + '"')
       nodetype = row[0]
       count = row[1]
       node_counts[nodetype] = node_counts.get(nodetype, 0) + count
