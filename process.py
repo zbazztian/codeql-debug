@@ -96,13 +96,13 @@ for qlf in glob.glob(os.path.join(
   )
   codeql(
     'bqrs', 'decode',
+    '--format', 'csv',
     '--output', source_and_sink_counts_csv,
     source_and_sink_counts_bqrs
   )
 
   with open(source_and_sink_counts_csv, 'r') as f:
     for row in csv.reader(f):
-      print('"' + str(row) + '"')
       nodetype = row[0]
       count = row[1]
       node_counts[nodetype] = node_counts.get(nodetype, 0) + count
