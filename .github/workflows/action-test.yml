@@ -4,7 +4,7 @@ on: [push]
 jobs:
   debug:
     name: CodeQL Debug Job
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:

@@ -46,11 +46,11 @@ if not os.path.isfile(codeql):
   print('Given path is not a CodeQL executable: ' + codeql)
   sys.exit(1)
 
-print(codeql)
-print(dbpath)
-print(lang)
-print(repo_id)
-print(sha)
+print('codeql executable: ' + codeql)
+print('codeql database: ' + dbpath)
+print('codeql language: ' + lang)
+print('repository id: ' + repo_id)
+print('sha: ' + sha)
 
 output = subprocess.run(
   [codeql, 'version'],
@@ -128,7 +128,7 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
     f.write('<h2 id="{nodetype}">{nodetype}</h2>\n'.format(nodetype=n))
     for r in nodes[n]:
       f.write(
-        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">click</a><br>\n'.format(
+        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">link</a><br>\n'.format(
           serverurl=server_url,
           repo_id=repo_id,
           sha=sha,
