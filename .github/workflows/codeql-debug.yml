@@ -18,7 +18,7 @@ jobs:
       id: codeqlinit
       uses: github/codeql-action/init@v1
       with:
-        config-file: zbazztian/codeql-debug/noanalysis.yml@master
+        config-file: .github/codeql-debug-config.yml
         languages: ${{ matrix.language }}
 
     - name: Perform CodeQL Analysis
