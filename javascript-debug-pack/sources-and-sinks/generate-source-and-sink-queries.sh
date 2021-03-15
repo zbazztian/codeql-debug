@@ -7,6 +7,7 @@ qlheader ='''/**
  * @problem.severity recommendation
  * @id js/sources-and-sinks-{number}
  */
+import javascript
 '''
 
 qlbody ='''
