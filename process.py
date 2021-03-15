@@ -5,6 +5,10 @@ import subprocess
 import csv
 import os
 
+def remove(fpath):
+  if os.path.isfile(fpath):
+    os.remove(fpath)
+
 def get(array, i, default):
   v = None
   if i < len(array):
@@ -173,3 +177,9 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
 
   f.write('</body>\n')
   f.write('</html>\n')
+
+
+# clean up
+remove(source_and_sink_counts_csv)
+remove(source_and_sink_counts_bqrs)
+remove(sources_and_sinks_csv)
