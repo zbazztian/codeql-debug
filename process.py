@@ -17,7 +17,20 @@ runner_tool_cache = os.environ['RUNNER_TOOL_CACHE']
 codeql = get(
   sys.argv,
   2,
-  get(glob.glob(os.path.join(runner_tool_cache, 'CodeQL', '*', 'x64', 'codeql', 'codeql')), 0, '')
+  get(
+    glob.glob(
+      os.path.join(
+        runner_tool_cache,
+        'CodeQL',
+        '*',
+        'x64',
+        'codeql',
+        'codeql' + ('' if os.name == 'posix' else '.exe')
+      )
+    ),
+    0,
+    ''
+  )
 )
 runner_temp = os.environ['RUNNER_TEMP']
 dbpath = get(sys.argv, 3, os.path.join(runner_temp, 'codeql_databases', lang))
