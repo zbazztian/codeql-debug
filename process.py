@@ -66,9 +66,10 @@ output = subprocess.run(
 )
 print(output.stdout.decode())
 
+sources_and_sinks_csv = 'codeql-debug-results-' + lang + '.csv'
 args = [
   codeql, 'database', 'analyze',
-  '--output', 'codeql-debug-results.csv',
+  '--output', sources_and_sinks_csv,
   '--format', 'csv',
   '--no-group-results',
   dbpath,
@@ -88,7 +89,7 @@ print(output.stdout.decode())
 
 nodes = {}
 
-with open('codeql-debug-results.csv', 'r') as f:
+with open(sources_and_sinks_csv, 'r') as f:
   for row in csv.reader(f):
     nodetype = row[3]
     fname = row[4]
