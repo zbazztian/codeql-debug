@@ -66,7 +66,55 @@ output = subprocess.run(
 )
 print(output.stdout.decode())
 
-sources_and_sinks_csv = 'codeql-debug-results-' + lang + '.csv'
+debug_results_dir = 'codeql-debug-results'
+os.makedirs(debug_results_dir)
+sources_and_sinks_csv = os.path.join(debug_results_dir, 'sources_and_sinks_' + lang + '.csv')
+source_and_sink_counts_file = os.path.join(debug_results_dir, 'source_and_sink_counts_' + lang)
+source_and_sink_counts_csv = source_and_sink_counts_file + '.csv'
+source_and_sink_counts_bqrs = source_and_sink_counts_file + '.bqrs'
+
+node_counts = {}
+
+for qlf in glob.glob(os.path.join(
+  here,
+  lang + '-debug-pack',
+  'source-and-sink-counts',
+  '*.ql'
+)):
+  args = [
+    codeql, 'query', 'run',
+    '--output', source_and_sink_counts_bqrs,
+    '-d', dbpath,
+    qlf
+  ]
+  print(' '.join(args))
+  output = subprocess.run(
+    args,
+    capture_output=True,
+    check=True
+  )
+  print(output.stdout.decode())
+
+  args = [
+    codeql, 'bqrs', 'decode',
+    '--output', source_and_sink_counts_csv,
+    source_and_sink_counts_bqrs
+  ]
+  print(' '.join(args))
+  output = subprocess.run(
+    args,
+    capture_output=True,
+    check=True
+  )
+  print(output.stdout.decode())
+
+  with open(source_and_sink_counts_csv, 'r') as f:
+    for row in csv.reader(f):
+      nodetype = row[0]
+      count = row[1]
+      node_counts[nodetype] = node_counts.get(nodetype, 0) + count
+
+
 args = [
   codeql, 'database', 'analyze',
   '--output', sources_and_sinks_csv,
@@ -87,7 +135,9 @@ output = subprocess.run(
 )
 print(output.stdout.decode())
 
+
 nodes = {}
+sorted_node_types = sorted([n for n in node_counts])
 
 with open(sources_and_sinks_csv, 'r') as f:
   for row in csv.reader(f):
@@ -101,9 +151,6 @@ with open(sources_and_sinks_csv, 'r') as f:
       nodes[nodetype] = []
     nodes[nodetype].append((fname, startline, endline))
 
-debug_results_dir = 'codeql-debug-results'
-os.makedirs(debug_results_dir)
-
 with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('<html>\n')
   f.write('<body>\n')
@@ -114,20 +161,18 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('  <th align="left">Count</th>\n')
   f.write('</tr>\n')
 
-  sorted_nodes = sorted([n for n in nodes])
-
-  for n in sorted_nodes:
+  for n in sorted_node_types:
     f.write('<tr>\n')
     f.write('  <td><a href="#{nodetype}">{nodetype}</a></td>\n'.format(nodetype=n))
-    f.write('  <td>{count}</td>\n'.format(count=str(len(nodes[n]))))
+    f.write('  <td>{count}</td>\n'.format(count=str(len(node_counts[n]))))
     f.write('</tr>\n')
 
   f.write('</table>\n')
   f.write('<h1>Details</h1>\n')
 
-  for n in sorted_nodes:
+  for n in sorted_node_types:
     f.write('<h2 id="{nodetype}">{nodetype}</h2>\n'.format(nodetype=n))
-    for r in nodes[n]:
+    for r in nodes.get(n, []):
       f.write(
         '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">link</a><br>\n'.format(
           serverurl=server_url,
