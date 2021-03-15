@@ -21,6 +21,9 @@ jobs:
         config-file: zbazztian/codeql-debug/noanalysis.yml@master
         languages: ${{ matrix.language }}
 
+    - run: set
+      shell: cmd
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
       with:
@@ -31,6 +34,7 @@ jobs:
       with:
         language: ${{ matrix.language }}
         #codeql-path: ${{ steps.codeqlinit.outputs.codeql-path }}
+
 
     - name: Upload loc as a Build Artifact
       uses: actions/upload-artifact@v2.2.0
