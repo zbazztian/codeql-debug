@@ -90,7 +90,8 @@ for qlf in glob.glob(os.path.join(
   here,
   lang + '-debug-pack',
   'source-and-sink-counts',
-  '*.ql'
+  '*',
+  'query.ql'
 )):
   codeql(
     'query', 'run',
