@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+# vi: set syntax=python:
+import re
+import sys
+import shutil
+import os
+
+PATTERN_COMMENT_LINES = re.compile('//.*$', flags=re.MULTILINE)
+PATTERN_METADATA = re.compile('^\s*/\*\*(.(?!\*/))*.\*/', flags=re.DOTALL)
+PATTERN_METADATA_LINE = re.compile('@(\S+)\s+(\S+)')
+PATTERN_FROM_WHERE_SELECT = re.compile('^\s*from\s+(.*)\s+where\s+(.*)\s+select\s+(.*)\s*', re.DOTALL | re.MULTILINE)
+PATTERN_CLASS_DEF = re.compile('^\s*class\s+(\S+)\s+extends\s+(\S+)\s+{', flags=re.MULTILINE | re.DOTALL)
+PATTERN_HASFLOW_CALL = re.compile('(\S+)\.hasFlow(Path)?\s*\(', flags=re.DOTALL)
+
+SS_QLHEADER ='''/**
+ * @name Sources and Sinks
+ * @description Prints sources and sinks of various DataFlow and TaintTracking Configurations
+ * @kind problem
+ * @problem.severity recommendation
+ * @id {id}
+ */
+'''
+
+
+SS_QLBODY ='''
+from DataFlow::Node n, string type
+where {body}
+select n, type
+'''
+
+SS_BODY_CLAUSE = '''
+exists(
+  {config} c |
+  c.isSource(n) and type = c + "Source" or
+  c.isSink(n) and type = c + "Sink"
+)'''
+
+SSC_QLBODY ='''
+from string type, int amount
+where {body}
+select type, amount
+'''
+
+SSC_BODY_CLAUSE ='''
+exists(
+  {config} c |
+  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
+  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+)'''
+
+lang = sys.argv[1]
+fname = sys.argv[2]
+fdir = os.path.dirname(fname)
+with open(fname, 'r') as f:
+  contents = f.read()
+
+# remove comment lines
+contents = PATTERN_COMMENT_LINES.sub('', contents)
+
+
+def get_metadata(querystring):
+  result = {}
+  m = PATTERN_METADATA.search(querystring)
+  if m:
+    for ml in PATTERN_METADATA_LINE.findall(m.group(0)):
+      result[ml[0]] = ml[1]
+  return result
+
+
+def from_where_select(querystring):
+  m = PATTERN_FROM_WHERE_SELECT.search(querystring)
+  return (m.group(1), m.group(2), m.group(3)) if m else (None, None, None)
+
+
+def get_flow_config_types_from_class_definitions(querystring):
+  results = []
+  for m in PATTERN_CLASS_DEF.findall(querystring):
+    if m[1].endswith('Configuration'):
+      results.append(m[0])
+  return results
+
+
+def get_flow_config_types_from_query_body(querystring):
+  result = []
+  f, w, s = from_where_select(querystring)
+  if not(f and w):
+    return None
+  for m in re.findall(PATTERN_HASFLOW_CALL, w):
+    qualifier = m[0]
+    for d in f.split(','):
+      d = d.strip()
+      dtype = re.split('\s+', d)[0]
+      dvarname = re.split('\s+', d)[1]
+      if dvarname == qualifier:
+        result.append(dtype)
+  return result
+
+
+def get_flow_config_types(querystring):
+  return set(
+    get_flow_config_types_from_query_body(querystring) +
+    get_flow_config_types_from_class_definitions(querystring)
+  )
+
+
+metadata = get_metadata(contents)
+
+if metadata.get('kind', 'UNDEFINED') == 'path-problem':
+  fcts = get_flow_config_types(contents)
+
+  if fcts:
+    name = metadata['id'].replace('/', '__').replace('-', '_')
+    ssdir = os.path.join('sources-and-sinks', name)
+    sscdir = os.path.join('source-and-sink-counts', name)
+    os.makedirs(ssdir, exist_ok=True)
+    os.makedirs(sscdir, exist_ok=True)
+
+    # copy library files shipping with the given query
+    for f in os.listdir(fdir):
+      if f.endswith('.qll'):
+        shutil.copyfile(os.path.join(fdir, f), os.path.join(ssdir, f))
+        shutil.copyfile(os.path.join(fdir, f), os.path.join(sscdir, f))
+
+    ssqlname = os.path.join(ssdir, 'query.ql')
+    sscqlname = os.path.join(sscdir, 'query.ql')
+
+    with open(ssqlname, 'w') as f:
+      f.write(
+        SS_QLHEADER.format(
+          id=metadata['id'] + '-sources-and-sinks'
+        )
+      )
+      f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
+      body = '\nor'.join([SS_BODY_CLAUSE.format(config=t) for t in fcts])
+      f.write(SS_QLBODY.format(body=body))
+
+    with open(sscqlname, 'w') as f:
+      f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
+      body = '\nor'.join([SSC_BODY_CLAUSE.format(config=t) for t in fcts])
+      f.write(SSC_QLBODY.format(body=body))
