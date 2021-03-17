@@ -52,7 +52,7 @@ def codeql(*args):
       check=True
     )
     print(output.stdout.decode(), flush=True)
-  except CalledProcessError as cpe:
+  except subprocess.CalledProcessError as cpe:
     print('Command failed with exit code: ' + str(cpe.returncode))
     print('stdout:')
     print(cpe.output.decode())
