@@ -181,13 +181,13 @@ exists(
 )
 or
 exists(
-  PrivateUrlFlowsToAuthCodeUrlCall c |
+  ConstantStateFlowConf c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )
 or
 exists(
-  ConstantStateFlowConf c |
+  PrivateUrlFlowsToAuthCodeUrlCall c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )

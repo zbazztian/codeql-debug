@@ -188,13 +188,13 @@ exists(
 )
 or
 exists(
-  PrivateUrlFlowsToAuthCodeUrlCall c |
+  ConstantStateFlowConf c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )
 or
 exists(
-  ConstantStateFlowConf c |
+  PrivateUrlFlowsToAuthCodeUrlCall c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )

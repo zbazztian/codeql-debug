@@ -15,13 +15,13 @@ import DataFlow::PathGraph
 from DataFlow::Node n, string type
 where 
 exists(
-  SafeUrlFlow::Configuration c |
+  Configuration c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )
 or
 exists(
-  Configuration c |
+  SafeUrlFlow::Configuration c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )
