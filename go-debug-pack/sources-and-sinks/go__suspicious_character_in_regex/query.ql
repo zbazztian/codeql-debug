@@ -18,7 +18,6 @@ import DataFlow::PathGraph
 predicate containsEscapedCharacter(DataFlow::Node source, string character) {
   character in ["a", "b"] and
   exists(StringLit s | s = source.asExpr() |
-    
     exists(s.getText().regexpFind("(?<=(^|[^\\\\])\\\\(\\\\{2}){0,10})" + character, _, _)) and
     not s.isRaw()
   )

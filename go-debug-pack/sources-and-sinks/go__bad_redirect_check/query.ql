@@ -21,7 +21,7 @@ StringOps::HasPrefix checkForLeadingSlash(SsaWithFields v) {
 
 predicate isCheckedForSecondSlash(SsaWithFields v) {
   exists(StringOps::HasPrefix hp | hp.getBaseString() = v.getAUse() |
-    hp.getSubstring().getStringValue() = "
+    hp.getSubstring().getStringValue() = "//"
   )
   or
   exists(DataFlow::EqualityTestNode eq, DataFlow::Node slash, DataFlow::ElementReadNode er |
@@ -31,7 +31,6 @@ predicate isCheckedForSecondSlash(SsaWithFields v) {
     eq.eq(_, er, slash)
   )
   or
-  
   isCleaned(v.getAUse())
 }
 
@@ -65,8 +64,6 @@ predicate isCheckedForSecondBackslash(SsaWithFields v) {
     eq.eq(_, er, slash)
   )
   or
-  
-  
   urlPath(v.getAUse())
 }
 
@@ -104,12 +101,10 @@ class Configuration extends TaintTracking::Configuration {
   }
 
   override predicate isAdditionalTaintStep(DataFlow::Node pred, DataFlow::Node succ) {
-    
     exists(Write w | w.writesField(succ, _, pred))
   }
 
   override predicate isSanitizerOut(DataFlow::Node node) {
-    
     exists(StringOps::Concatenation conc, int i, int j | i < j |
       node = conc.getOperand(j) and
       exists(conc.getOperand(i))
@@ -142,11 +137,7 @@ predicate isBadRedirectCheckOrWrapper(DataFlow::Node check, SsaWithFields v) {
  * backslash in its second position.
  */
 predicate isBadRedirectCheck(DataFlow::Node check, SsaWithFields v) {
-  
   check = checkForLeadingSlash(v) and
-  
-  
-  
   not (
     isCheckedForSecondSlash(v.similar()) and
     isCheckedForSecondBackslash(v.similar())

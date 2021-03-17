@@ -5,7 +5,7 @@ import sys
 import shutil
 import os
 
-PATTERN_COMMENT_LINES = re.compile('//.*$', flags=re.MULTILINE)
+PATTERN_COMMENT_LINES = re.compile('(^|\s+)//.*$', flags=re.MULTILINE)
 PATTERN_METADATA = re.compile('^\s*/\*\*(.(?!\*/))*.\*/', flags=re.DOTALL)
 PATTERN_METADATA_LINE = re.compile('@(\S+)\s+(\S+)')
 PATTERN_FROM_WHERE_SELECT = re.compile('^\s*from\s+(.*)\s+where\s+(.*)\s+select\s+(.*)\s*', re.DOTALL | re.MULTILINE)

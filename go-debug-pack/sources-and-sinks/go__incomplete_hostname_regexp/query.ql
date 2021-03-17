@@ -19,10 +19,7 @@ predicate isIncompleteHostNameRegexpPattern(string pattern, string hostPart) {
   hostPart =
     pattern
         .regexpCapture("(?i).*?" +
-            
             "(?<!\\\\)[.]" +
-            
-            
             "(([():|?a-z0-9-]+(\\\\)?[.])?" + commonTLD() + ")" + ".*", 1)
 }
 

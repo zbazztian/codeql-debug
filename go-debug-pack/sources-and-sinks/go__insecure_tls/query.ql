@@ -17,17 +17,12 @@ import semmle.go.security.InsecureFeatureFlag::InsecureFeatureFlag
 predicate isInsecureTlsVersion(int val, string name, string fieldName) {
   (fieldName = "MinVersion" or fieldName = "MaxVersion") and
   (
-    
     val = 768 and name = "VersionSSL30"
     or
-    
     val = 769 and name = "VersionTLS10"
     or
-    
     val = 770 and name = "VersionTLS11"
     or
-    
-    
     val = 0 and name = "" and fieldName = "MinVersion"
   )
 }
@@ -36,13 +31,13 @@ predicate isInsecureTlsVersion(int val, string name, string fieldName) {
  * Returns integers that may represent a secure TLS version.
  */
 int getASecureTlsVersion() {
-  result in [771, 772] 
+  result in [771, 772]
 }
 
 /**
  * Returns integers that may represent a TLS version.
  *
- * Integer values corresponding to versions are defined at https:
+ * Integer values corresponding to versions are defined at https://golang.org/pkg/crypto/tls/#pkg-constants
  * Zero means the default version; at the time of writing, TLS 1.0.
  */
 int getATlsVersion() { result = getASecureTlsVersion() or isInsecureTlsVersion(result, _, _) }
@@ -129,9 +124,6 @@ predicate isInsecureTlsVersionFlow(
     cfg.isSource(source.getNode(), version) and
     cfg.isSink(sink.getNode(), fld, base, _) and
     isInsecureTlsVersion(version, _, fld.getName()) and
-    
-    
-    
     not secureTlsVersionFlowsToSink(sink, fld) and
     not exists(SsaWithFields insecureAccessPath, SsaWithFields secureAccessPath |
       nodeOrDeref(insecureAccessPath.getAUse()) = base and
@@ -232,7 +224,7 @@ predicate isInsecureTlsCipherFlow(DataFlow::PathNode source, DataFlow::PathNode 
  *
  * We accept 'intermediate' because it appears to be common for TLS users
  * to define three profiles: modern, intermediate, legacy/old, perhaps based
- * on https:
+ * on https://wiki.mozilla.org/Security/Server_Side_TLS (though note the
  * 'intermediate' used there would now pass muster according to this query)
  */
 class LegacyTlsVersionFlag extends FlagKind {

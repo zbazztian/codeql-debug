@@ -34,7 +34,6 @@ class ConstantStateFlowConf extends DataFlow::Configuration {
   override predicate isSource(DataFlow::Node source) {
     source.isConst() and
     not DataFlow::isReturnedWithError(source) and
-    
     (
       source.asExpr() instanceof StringLit
       or
@@ -64,13 +63,9 @@ predicate isUrlTaintingConfigStep(DataFlow::Node pred, DataFlow::Node succ) {
  */
 bindingset[result]
 string getAnOobOauth2Url() {
-  
-  
   result in ["urn:ietf:wg:oauth:2.0:oob", "urn:ietf:wg:oauth:2.0:oob:auto", "oob", "code"] or
-  
-  
-  result.matches("%:
-  result.matches("%:
+  result.matches("%://localhost%") or
+  result.matches("%://127.0.0.1%")
 }
 
 /**
@@ -85,8 +80,6 @@ class PrivateUrlFlowsToAuthCodeUrlCall extends DataFlow::Configuration {
 
   override predicate isSource(DataFlow::Node source) {
     source.getStringValue() = getAnOobOauth2Url() and
-    
-    
     (
       source.asExpr() instanceof StringLit
       or
@@ -95,13 +88,10 @@ class PrivateUrlFlowsToAuthCodeUrlCall extends DataFlow::Configuration {
   }
 
   override predicate isAdditionalFlowStep(DataFlow::Node pred, DataFlow::Node succ) {
-    
     isUrlTaintingConfigStep(pred, succ)
     or
-    
     TaintTracking::referenceStep(pred, succ)
     or
-    
     any(Fmt::Sprinter s).taintStep(pred, succ)
   }
 
