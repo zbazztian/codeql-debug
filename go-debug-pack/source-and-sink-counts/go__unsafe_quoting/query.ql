@@ -2,7 +2,6 @@
 
 import go
 import semmle.go.security.StringBreak
-import DataFlow::PathGraph
 
 from string type, int amount
 where 

@@ -9,7 +9,6 @@
 
 import go
 import semmle.go.security.StoredCommand
-import DataFlow::PathGraph
 
 from DataFlow::Node n, string type
 where 

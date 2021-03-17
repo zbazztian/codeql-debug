@@ -2,7 +2,6 @@
 
 import go
 import semmle.go.security.SqlInjection
-import DataFlow::PathGraph
 
 from string type, int amount
 where 

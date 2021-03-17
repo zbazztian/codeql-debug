@@ -1,7 +1,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 import EmailInjection::EmailInjection
 
 from string type, int amount

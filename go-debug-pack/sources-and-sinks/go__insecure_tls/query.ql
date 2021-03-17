@@ -8,7 +8,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 import semmle.go.security.InsecureFeatureFlag::InsecureFeatureFlag
 
 /**
@@ -253,13 +253,13 @@ FlagKind securityOrTlsVersionFlag() {
 from DataFlow::Node n, string type
 where 
 exists(
-  TlsInsecureCipherSuitesFlowConfig c |
+  TlsVersionFlowConfig c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )
 or
 exists(
-  TlsVersionFlowConfig c |
+  TlsInsecureCipherSuitesFlowConfig c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )

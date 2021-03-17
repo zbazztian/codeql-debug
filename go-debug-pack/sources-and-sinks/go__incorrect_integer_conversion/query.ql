@@ -8,7 +8,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 
 /**
  * Gets the maximum value of an integer (signed if `isSigned`

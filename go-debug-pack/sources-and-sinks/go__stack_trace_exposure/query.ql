@@ -9,7 +9,7 @@
 
 import go
 import semmle.go.security.InsecureFeatureFlag::InsecureFeatureFlag
-import DataFlow::PathGraph
+
 
 /**
  * A flag indicating the program is in debug or development mode, or that stack

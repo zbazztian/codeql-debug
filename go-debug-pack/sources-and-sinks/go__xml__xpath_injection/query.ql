@@ -9,7 +9,7 @@
 
 import go
 import semmle.go.security.XPathInjection::XPathInjection
-import DataFlow::PathGraph
+
 
 /** Holds if `node` is either a string or a byte slice */
 predicate isStringOrByte(DataFlow::PathNode node) {

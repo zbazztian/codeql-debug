@@ -8,7 +8,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 
 /**
  * Holds if `source` corresponds to a string literal that contains an escaped `character`.

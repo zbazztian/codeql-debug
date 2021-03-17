@@ -9,18 +9,17 @@
 
 import go
 import semmle.go.security.CommandInjection
-import DataFlow::PathGraph
 
 from DataFlow::Node n, string type
 where 
 exists(
-  CommandInjection::Configuration c |
+  CommandInjection::DoubleDashSanitizingConfiguration c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )
 or
 exists(
-  CommandInjection::DoubleDashSanitizingConfiguration c |
+  CommandInjection::Configuration c |
   c.isSource(n) and type = c + "Source" or
   c.isSink(n) and type = c + "Sink"
 )

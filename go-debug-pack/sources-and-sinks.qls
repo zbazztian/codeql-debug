@@ -1,1 +1,1 @@
-- queries: sources-and-sinks
+- query: sources-and-sinks/go__allocation_size_overflow/query.ql

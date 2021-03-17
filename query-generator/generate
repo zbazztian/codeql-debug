@@ -11,6 +11,7 @@ PATTERN_METADATA_LINE = re.compile('@(\S+)\s+(\S+)')
 PATTERN_FROM_WHERE_SELECT = re.compile('^\s*from\s+(.*)\s+where\s+(.*)\s+select\s+(.*)\s*', re.DOTALL | re.MULTILINE)
 PATTERN_CLASS_DEF = re.compile('^\s*class\s+(\S+)\s+extends\s+(\S+)\s+{', flags=re.MULTILINE | re.DOTALL)
 PATTERN_HASFLOW_CALL = re.compile('(\S+)\.hasFlow(Path)?\s*\(', flags=re.DOTALL)
+PATTERN_PATHGRAPH_IMPORT = re.compile('^\s*import\s+(\S*PathGraph)', flags=re.MULTILINE | re.DOTALL)
 
 SS_QLHEADER ='''/**
  * @name Sources and Sinks
@@ -57,6 +58,8 @@ with open(fname, 'r') as f:
 # remove comment lines
 contents = PATTERN_COMMENT_LINES.sub('', contents)
 
+# remove PathGraph imports
+contents = PATTERN_PATHGRAPH_IMPORT.sub('', contents)
 
 def get_metadata(querystring):
   result = {}

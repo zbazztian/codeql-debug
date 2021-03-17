@@ -1,7 +1,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 
 /**
  * Holds if `pattern` is a regular expression pattern for URLs with a host matched by `hostPart`,

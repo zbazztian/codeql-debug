@@ -8,7 +8,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 import semmle.go.security.UnsafeUnzipSymlink::UnsafeUnzipSymlink
 
 from DataFlow::Node n, string type

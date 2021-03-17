@@ -2,7 +2,7 @@
 
 import go
 import semmle.go.security.OpenUrlRedirectCustomizations
-import DataFlow::PathGraph
+
 
 StringOps::HasPrefix checkForLeadingSlash(SsaWithFields v) {
   exists(DataFlow::Node substr |

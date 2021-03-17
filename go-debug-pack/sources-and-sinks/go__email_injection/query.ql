@@ -8,7 +8,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 import EmailInjection::EmailInjection
 
 from DataFlow::Node n, string type

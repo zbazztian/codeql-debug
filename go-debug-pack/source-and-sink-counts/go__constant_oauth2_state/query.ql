@@ -1,7 +1,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 
 /**
  * A method that creates a new URL that will send the user
@@ -175,7 +175,7 @@ predicate seemsLikeDoneWithinATerminal(DataFlow::CallNode authCodeURLCall) {
 from string type, int amount
 where 
 exists(
-  FlowToPrint c |
+  PrivateUrlFlowsToAuthCodeUrlCall c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )
@@ -187,7 +187,7 @@ exists(
 )
 or
 exists(
-  PrivateUrlFlowsToAuthCodeUrlCall c |
+  FlowToPrint c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )

@@ -1,7 +1,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 
 /** The `ssh.InsecureIgnoreHostKey` function, which allows connecting to any host regardless of its host key. */
 class InsecureIgnoreHostKey extends Function {

@@ -2,7 +2,6 @@
 
 import go
 import semmle.go.security.InsecureRandomness::InsecureRandomness
-import DataFlow::PathGraph
 
 from string type, int amount
 where 

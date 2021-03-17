@@ -10,7 +10,6 @@
 import go
 import semmle.go.security.RequestForgery::RequestForgery
 import semmle.go.security.SafeUrlFlow
-import DataFlow::PathGraph
 
 from DataFlow::Node n, string type
 where 

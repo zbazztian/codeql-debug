@@ -1,7 +1,7 @@
 
 
 import go
-import DataFlow::PathGraph
+
 import semmle.go.security.InsecureFeatureFlag::InsecureFeatureFlag
 
 /**
@@ -246,13 +246,13 @@ FlagKind securityOrTlsVersionFlag() {
 from string type, int amount
 where 
 exists(
-  TlsInsecureCipherSuitesFlowConfig c |
+  TlsVersionFlowConfig c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )
 or
 exists(
-  TlsVersionFlowConfig c |
+  TlsInsecureCipherSuitesFlowConfig c |
   amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
   amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
 )
