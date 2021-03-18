@@ -6,15 +6,13 @@ import csv
 import os
 import shutil
 import re
+import hashlib
 
-def nodetype_as_f(nodetype):
-  return nodetype.replace(
-    ' ', '_'
-  ).replace(
-    '|', '_'
-  ).replace(
-    '/', '_'
-  )
+
+def make_key(s):
+    sha1 = hashlib.sha1()
+    sha1.update(s.encode('utf-8'))
+    return sha1.hexdigest()
 
 def remove(fpath):
   if os.path.isfile(fpath):
@@ -191,7 +189,7 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('</tr>\n')
 
   for n in sorted_node_types:
-    detail_file = os.path.join(detail_dir, nodetype_as_f(n) + '.html')
+    detail_file = os.path.join(detail_dir, make_key(n) + '.html')
 
     f.write('<tr>\n')
     f.write('  <td><a href="{relpath}">{nodetype}</a></td>\n'.format(
