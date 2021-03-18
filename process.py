@@ -5,6 +5,16 @@ import subprocess
 import csv
 import os
 import shutil
+import re
+
+def nodetype_as_f(nodetype):
+  return nodetype.replace(
+    ' ', '_'
+  ).replace(
+    '|', '_'
+  ).replace(
+    '/', '_'
+  )
 
 def remove(fpath):
   if os.path.isfile(fpath):
@@ -86,43 +96,53 @@ debug_results_dir = 'codeql-debug-results'
 shutil.rmtree(debug_results_dir, ignore_errors=True)
 os.makedirs(debug_results_dir)
 sources_and_sinks_csv = os.path.join(debug_results_dir, 'sources_and_sinks_' + lang + '.csv')
-source_and_sink_counts_file = os.path.join(debug_results_dir, 'source_and_sink_counts_' + lang)
-source_and_sink_counts_csv = source_and_sink_counts_file + '.csv'
-source_and_sink_counts_bqrs = source_and_sink_counts_file + '.bqrs'
+debug_pack = lang + '-debug-pack'
+debug_pack_path = os.path.join(here, debug_pack)
 
 node_counts = {}
 
+codeql(
+  'database', 'run-queries',
+  '--search-path', ql_searchpath,
+  '--threads', '0',
+  '--rerun',
+  dbpath,
+  os.path.join(
+    debug_pack_path,
+    'source-and-sink-counts.qls'
+  )
+)
+
 for qlf in glob.glob(os.path.join(
-  here,
-  lang + '-debug-pack',
+  debug_pack_path,
   'source-and-sink-counts',
   '*',
   'query.ql'
 )):
-  codeql(
-    'query', 'run',
-    '--search-path', ql_searchpath,
-    '--output', source_and_sink_counts_bqrs,
-    '--threads', '0',
-    '-d', dbpath,
-    qlf
+  relqlf = os.path.relpath(qlf, here)
+  bqrsf = os.path.join(
+    dbpath,
+    'results',
+    re.sub('\.ql$', '.bqrs', relqlf)
   )
+  csvf = re.sub('\.bqrs$', '.csv', bqrsf)
   codeql(
     'bqrs', 'decode',
+    '--no-titles',
     '--format', 'csv',
-    '--output', source_and_sink_counts_csv,
-    source_and_sink_counts_bqrs
+    '--output', csvf,
+    bqrsf
   )
 
-  with open(source_and_sink_counts_csv, 'r') as f:
-    reader = csv.reader(f)
-    next(reader, None)  # skip headers
-    for row in reader:
+  with open(csvf, 'r') as f:
+    for row in csv.reader(f):
       nodetype = row[0]
       count = row[1]
       if nodetype in node_counts:
         raise Exception('Duplicated node type "' + nodetype + '"!')
       node_counts[nodetype] = count
+
+  remove(csvf)
 
 
 codeql(
@@ -131,11 +151,12 @@ codeql(
   '--output', sources_and_sinks_csv,
   '--format', 'csv',
   '--threads', '0',
+  '--rerun',
   '--no-group-results',
   dbpath,
   os.path.join(
     here,
-    lang + '-debug-pack',
+    debug_pack,
     'sources-and-sinks.qls'
   )
 )
@@ -155,6 +176,10 @@ with open(sources_and_sinks_csv, 'r') as f:
       nodes[nodetype] = []
     nodes[nodetype].append((fname, startline, endline))
 
+
+detail_dir = os.path.join(debug_results_dir, lang)
+os.makedirs(detail_dir)
+
 with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('<html>\n')
   f.write('<body>\n')
@@ -166,33 +191,39 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('</tr>\n')
 
   for n in sorted_node_types:
+    detail_file = os.path.join(detail_dir, nodetype_as_f(n) + '.html')
+
     f.write('<tr>\n')
-    f.write('  <td><a href="#{nodetype}">{nodetype}</a></td>\n'.format(nodetype=n))
+    f.write('  <td><a href="{relpath}">{nodetype}</a></td>\n'.format(
+      relpath=os.path.relpath(detail_file, debug_results_dir),
+      nodetype=n
+    ))
     f.write('  <td>{count}</td>\n'.format(count=str(node_counts[n])))
     f.write('</tr>\n')
 
-  f.write('</table>\n')
-  f.write('<h1>Details</h1>\n')
-
-  for n in sorted_node_types:
-    f.write('<h2 id="{nodetype}">{nodetype} (code-only results)</h2>\n'.format(nodetype=n))
-    for r in nodes.get(n, []):
-      f.write(
-        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">{fname}:{startline}</a><br>\n'.format(
-          serverurl=server_url,
-          repo_id=repo_id,
-          sha=sha,
-          fname=r[0],
-          startline=r[1],
-          endline=r[2]
+    with open(os.path.join(detail_file), 'w') as df:
+      df.write('<html>\n')
+      df.write('<body>\n')
+      df.write('<h2>{nodetype} (code-only results)</h2>\n'.format(nodetype=n))
+      for r in nodes.get(n, []):
+        df.write(
+          '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">{fname}:{startline}</a><br>\n'.format(
+            serverurl=server_url,
+            repo_id=repo_id,
+            sha=sha,
+            fname=r[0],
+            startline=r[1],
+            endline=r[2]
+          )
         )
-      )
+      df.write('</body>\n')
+      df.write('</html>\n')
+
+  f.write('</table>\n')
 
   f.write('</body>\n')
   f.write('</html>\n')
 
 
 # clean up
-remove(source_and_sink_counts_csv)
-remove(source_and_sink_counts_bqrs)
 remove(sources_and_sinks_csv)
