@@ -1,5 +1,0 @@
-disable-default-queries: true
-queries:
-  - uses: zbazztian/codeql-debug/javascript-debug-pack/noresults.ql@master
-  - uses: zbazztian/codeql-debug/java-debug-pack/noresults.ql@master
-  - uses: zbazztian/codeql-debug/go-debug-pack/noresults.ql@master
