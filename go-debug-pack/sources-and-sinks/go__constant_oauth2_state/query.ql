@@ -198,13 +198,13 @@ where exists(string qid | qid = "go/constant-oauth2-state" and (
   )
   or
   exists(
-    PrivateUrlFlowsToAuthCodeUrlCall c |
+    FlowToPrint c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    FlowToPrint c |
+    PrivateUrlFlowsToAuthCodeUrlCall c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )

@@ -261,13 +261,13 @@ FlagKind securityOrTlsVersionFlag() {
 from DataFlow::Node n, string type
 where exists(string qid | qid = "go/insecure-tls" and (
   exists(
-    TlsVersionFlowConfig c |
+    TlsInsecureCipherSuitesFlowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    TlsInsecureCipherSuitesFlowConfig c |
+    TlsVersionFlowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )

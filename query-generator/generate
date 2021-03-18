@@ -102,10 +102,10 @@ def get_flow_config_types_from_query_body(querystring):
 
 
 def get_flow_config_types(querystring):
-  return set(
+  return sorted(set(
     get_flow_config_types_from_query_body(querystring) +
     get_flow_config_types_from_class_definitions(querystring)
-  )
+  ))
 
 
 metadata = get_metadata(contents)

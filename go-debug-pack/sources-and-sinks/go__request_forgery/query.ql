@@ -14,13 +14,13 @@ import semmle.go.security.SafeUrlFlow
 from DataFlow::Node n, string type
 where exists(string qid | qid = "go/request-forgery" and (
   exists(
-    SafeUrlFlow::Configuration c |
+    Configuration c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    Configuration c |
+    SafeUrlFlow::Configuration c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
