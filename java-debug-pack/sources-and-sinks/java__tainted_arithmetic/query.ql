@@ -35,13 +35,13 @@ class RemoteUserInputUnderflowConfig extends TaintTracking::Configuration {
 from DataFlow::Node n, string type
 where exists(string qid | qid = "java/tainted-arithmetic" and (
   exists(
-    RemoteUserInputUnderflowConfig c |
+    RemoteUserInputOverflowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    RemoteUserInputOverflowConfig c |
+    RemoteUserInputUnderflowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )

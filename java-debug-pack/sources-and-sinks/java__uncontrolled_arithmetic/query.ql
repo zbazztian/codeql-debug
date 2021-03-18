@@ -63,13 +63,13 @@ class ArithmeticUncontrolledUnderflowConfig extends TaintTracking::Configuration
 from DataFlow::Node n, string type
 where exists(string qid | qid = "java/uncontrolled-arithmetic" and (
   exists(
-    ArithmeticUncontrolledUnderflowConfig c |
+    ArithmeticUncontrolledOverflowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    ArithmeticUncontrolledOverflowConfig c |
+    ArithmeticUncontrolledUnderflowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )

@@ -46,13 +46,13 @@ class XxeConfig extends TaintTracking::Configuration {
 from DataFlow::Node n, string type
 where exists(string qid | qid = "java/xxe" and (
   exists(
-    XxeConfig c |
+    SafeSAXSourceFlowConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
   or
   exists(
-    SafeSAXSourceFlowConfig c |
+    XxeConfig c |
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
