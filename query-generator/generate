@@ -5,7 +5,7 @@ import sys
 import shutil
 import os
 
-PATTERN_COMMENT_LINES = re.compile('(^|\s+)//.*$', flags=re.MULTILINE)
+PATTERN_COMMENT_LINES = re.compile('^\s*//.*$', flags=re.MULTILINE)
 PATTERN_METADATA = re.compile('^\s*/\*\*(.(?!\*/))*.\*/', flags=re.DOTALL)
 PATTERN_METADATA_LINE = re.compile('@(\S+)\s+(\S+)')
 PATTERN_FROM_WHERE_SELECT = re.compile('^\s*from\s+(.*)\s+where\s+(.*)\s+select\s+(.*)\s*', re.DOTALL | re.MULTILINE)
@@ -31,9 +31,11 @@ select n, type
 
 SS_BODY_CLAUSE = '''
 exists(
-  {config} c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  {config} c, string qid |
+  qid = "{qid}: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )'''
 
 SSC_QLBODY ='''
@@ -44,9 +46,11 @@ select type, amount
 
 SSC_BODY_CLAUSE ='''
 exists(
-  {config} c |
-  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
-  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+  {config} c, string qid |
+  qid = "{qid}: " and (
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+  )
 )'''
 
 lang = sys.argv[1]
@@ -134,10 +138,10 @@ if metadata.get('kind', 'UNDEFINED') == 'path-problem':
         )
       )
       f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
-      body = '\nor'.join([SS_BODY_CLAUSE.format(config=t) for t in fcts])
+      body = '\nor'.join([SS_BODY_CLAUSE.format(config=t, qid=metadata['id']) for t in fcts])
       f.write(SS_QLBODY.format(body=body))
 
     with open(sscqlname, 'w') as f:
       f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
-      body = '\nor'.join([SSC_BODY_CLAUSE.format(config=t) for t in fcts])
+      body = '\nor'.join([SSC_BODY_CLAUSE.format(config=t, qid=metadata['id']) for t in fcts])
       f.write(SSC_QLBODY.format(body=body))

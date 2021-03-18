@@ -17,12 +17,17 @@ import semmle.go.security.InsecureFeatureFlag::InsecureFeatureFlag
 predicate isInsecureTlsVersion(int val, string name, string fieldName) {
   (fieldName = "MinVersion" or fieldName = "MaxVersion") and
   (
+
     val = 768 and name = "VersionSSL30"
     or
+
     val = 769 and name = "VersionTLS10"
     or
+
     val = 770 and name = "VersionTLS11"
     or
+
+
     val = 0 and name = "" and fieldName = "MinVersion"
   )
 }
@@ -31,7 +36,7 @@ predicate isInsecureTlsVersion(int val, string name, string fieldName) {
  * Returns integers that may represent a secure TLS version.
  */
 int getASecureTlsVersion() {
-  result in [771, 772]
+  result in [771, 772] // TLS 1.2 and 1.3 respectively
 }
 
 /**
@@ -124,6 +129,9 @@ predicate isInsecureTlsVersionFlow(
     cfg.isSource(source.getNode(), version) and
     cfg.isSink(sink.getNode(), fld, base, _) and
     isInsecureTlsVersion(version, _, fld.getName()) and
+
+
+
     not secureTlsVersionFlowsToSink(sink, fld) and
     not exists(SsaWithFields insecureAccessPath, SsaWithFields secureAccessPath |
       nodeOrDeref(insecureAccessPath.getAUse()) = base and
@@ -253,14 +261,18 @@ FlagKind securityOrTlsVersionFlag() {
 from DataFlow::Node n, string type
 where 
 exists(
-  TlsVersionFlowConfig c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  TlsVersionFlowConfig c, string qid |
+  qid = "go/insecure-tls: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 or
 exists(
-  TlsInsecureCipherSuitesFlowConfig c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  TlsInsecureCipherSuitesFlowConfig c, string qid |
+  qid = "go/insecure-tls: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

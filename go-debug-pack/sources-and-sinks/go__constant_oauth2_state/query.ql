@@ -34,6 +34,7 @@ class ConstantStateFlowConf extends DataFlow::Configuration {
   override predicate isSource(DataFlow::Node source) {
     source.isConst() and
     not DataFlow::isReturnedWithError(source) and
+
     (
       source.asExpr() instanceof StringLit
       or
@@ -63,7 +64,11 @@ predicate isUrlTaintingConfigStep(DataFlow::Node pred, DataFlow::Node succ) {
  */
 bindingset[result]
 string getAnOobOauth2Url() {
+
+
   result in ["urn:ietf:wg:oauth:2.0:oob", "urn:ietf:wg:oauth:2.0:oob:auto", "oob", "code"] or
+
+
   result.matches("%://localhost%") or
   result.matches("%://127.0.0.1%")
 }
@@ -80,6 +85,8 @@ class PrivateUrlFlowsToAuthCodeUrlCall extends DataFlow::Configuration {
 
   override predicate isSource(DataFlow::Node source) {
     source.getStringValue() = getAnOobOauth2Url() and
+
+
     (
       source.asExpr() instanceof StringLit
       or
@@ -88,10 +95,13 @@ class PrivateUrlFlowsToAuthCodeUrlCall extends DataFlow::Configuration {
   }
 
   override predicate isAdditionalFlowStep(DataFlow::Node pred, DataFlow::Node succ) {
+
     isUrlTaintingConfigStep(pred, succ)
     or
+
     TaintTracking::referenceStep(pred, succ)
     or
+
     any(Fmt::Sprinter s).taintStep(pred, succ)
   }
 
@@ -182,20 +192,26 @@ predicate seemsLikeDoneWithinATerminal(DataFlow::CallNode authCodeURLCall) {
 from DataFlow::Node n, string type
 where 
 exists(
-  PrivateUrlFlowsToAuthCodeUrlCall c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  ConstantStateFlowConf c, string qid |
+  qid = "go/constant-oauth2-state: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 or
 exists(
-  ConstantStateFlowConf c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  FlowToPrint c, string qid |
+  qid = "go/constant-oauth2-state: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 or
 exists(
-  FlowToPrint c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  PrivateUrlFlowsToAuthCodeUrlCall c, string qid |
+  qid = "go/constant-oauth2-state: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

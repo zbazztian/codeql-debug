@@ -16,6 +16,10 @@ class HostKeyCallbackFunc extends DataFlow::Node {
     exists(NamedType nt | nt.hasQualifiedName(CryptoSsh::packagePath(), "HostKeyCallback") |
       getType().getUnderlyingType() = nt.getUnderlyingType()
     ) and
+
+
+
+
     (
       this instanceof DataFlow::FunctionNode
       or
@@ -29,8 +33,10 @@ class HostKeyCallbackFunc extends DataFlow::Node {
 /** A callback function value that is insecure when used as a `HostKeyCallback`, because it always returns `nil`. */
 class InsecureHostKeyCallbackFunc extends HostKeyCallbackFunc {
   InsecureHostKeyCallbackFunc() {
+
     this = any(InsecureIgnoreHostKey f).getACall().getAResult()
     or
+
     forex(DataFlow::ResultNode returnValue |
       returnValue = this.(DataFlow::FunctionNode).getAResult()
     |
@@ -89,8 +95,10 @@ predicate hostCheckReachesSink(DataFlow::PathNode sink) {
 from string type, int amount
 where 
 exists(
-  HostKeyCallbackAssignmentConfig c |
-  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
-  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+  HostKeyCallbackAssignmentConfig c, string qid |
+  qid = "go/insecure-hostkeycallback: " and (
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+  )
 )
 select type, amount

@@ -113,6 +113,8 @@ for qlf in glob.glob(os.path.join(
     for row in reader:
       nodetype = row[0]
       count = row[1]
+      if nodetype in node_counts:
+        raise Exception('Duplicated node type "' + nodetype + '"!')
       node_counts[nodetype] = count
 
 

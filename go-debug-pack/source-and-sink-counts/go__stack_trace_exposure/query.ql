@@ -47,6 +47,9 @@ class StackTraceExposureConfig extends TaintTracking::Configuration {
   override predicate isSink(DataFlow::Node node) { node instanceof HTTP::ResponseBody }
 
   override predicate isSanitizer(DataFlow::Node node) {
+
+
+
     exists(ControlFlow::ConditionGuardNode cgn |
       cgn.ensures(any(DebugModeFlag f).getAFlag().getANode(), _)
     |
@@ -58,8 +61,10 @@ class StackTraceExposureConfig extends TaintTracking::Configuration {
 from string type, int amount
 where 
 exists(
-  StackTraceExposureConfig c |
-  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
-  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+  StackTraceExposureConfig c, string qid |
+  qid = "go/stack-trace-exposure: " and (
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+  )
 )
 select type, amount

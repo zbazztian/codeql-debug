@@ -51,9 +51,11 @@ private predicate isIncorrectIntegerConversion(int sourceBitSize, int sinkBitSiz
   sinkBitSize in [8, 16, 32] and
   sourceBitSize > sinkBitSize
   or
+
   sourceBitSize = 0 and
   sinkBitSize in [8, 16, 32]
   or
+
   sourceBitSize = 64 and
   sinkBitSize = 0
 }
@@ -91,6 +93,8 @@ class ConversionWithoutBoundsCheckConfig extends TaintTracking::Configuration {
       (
         apparentBitSize = ip.getTargetBitSize()
         or
+
+
         exists(DataFlow::Node rawBitSize | rawBitSize = ip.getTargetBitSizeInput().getNode(c) |
           if rawBitSize = any(Strconv::IntSize intSize).getARead()
           then apparentBitSize = 0
@@ -102,6 +106,9 @@ class ConversionWithoutBoundsCheckConfig extends TaintTracking::Configuration {
         then effectiveBitSize = getIntTypeBitSize(source.getFile())
         else effectiveBitSize = apparentBitSize
       ) and
+
+
+
       sourceBitSize = min(int b | b in [0, 8, 16, 32, 64] and b >= effectiveBitSize)
     )
   }
@@ -130,6 +137,8 @@ class ConversionWithoutBoundsCheckConfig extends TaintTracking::Configuration {
   override predicate isSink(DataFlow::Node sink) { isSink(sink, sinkBitSize) }
 
   override predicate isSanitizerGuard(DataFlow::BarrierGuard guard) {
+
+
     exists(int bitSize | if sinkBitSize != 0 then bitSize = sinkBitSize else bitSize = 32 |
       guard.(UpperBoundCheckGuard).getBound() <= getMaxIntValue(bitSize, sourceIsSigned)
     )
@@ -181,8 +190,10 @@ string describeBitSize(int bitSize, int intTypeBitSize) {
 from DataFlow::Node n, string type
 where 
 exists(
-  ConversionWithoutBoundsCheckConfig c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  ConversionWithoutBoundsCheckConfig c, string qid |
+  qid = "go/incorrect-integer-conversion: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

@@ -13,8 +13,10 @@ import semmle.go.security.ExternalAPIs
 from DataFlow::Node n, string type
 where 
 exists(
-  UntrustedDataToUnknownExternalAPIConfig c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  UntrustedDataToUnknownExternalAPIConfig c, string qid |
+  qid = "go/untrusted-data-to-unknown-external-api: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

@@ -13,8 +13,10 @@ import semmle.go.security.StoredCommand
 from DataFlow::Node n, string type
 where 
 exists(
-  StoredCommand::Configuration c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  StoredCommand::Configuration c, string qid |
+  qid = "go/stored-command: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

@@ -11,6 +11,7 @@ import go
 predicate containsEscapedCharacter(DataFlow::Node source, string character) {
   character in ["a", "b"] and
   exists(StringLit s | s = source.asExpr() |
+
     exists(s.getText().regexpFind("(?<=(^|[^\\\\])\\\\(\\\\{2}){0,10})" + character, _, _)) and
     not s.isRaw()
   )
@@ -37,8 +38,10 @@ class Config extends DataFlow::Configuration {
 from string type, int amount
 where 
 exists(
-  Config c |
-  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
-  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+  Config c, string qid |
+  qid = "go/suspicious-character-in-regex: " and (
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+  )
 )
 select type, amount

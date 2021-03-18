@@ -31,6 +31,7 @@ predicate isCheckedForSecondSlash(SsaWithFields v) {
     eq.eq(_, er, slash)
   )
   or
+
   isCleaned(v.getAUse())
 }
 
@@ -64,6 +65,8 @@ predicate isCheckedForSecondBackslash(SsaWithFields v) {
     eq.eq(_, er, slash)
   )
   or
+
+
   urlPath(v.getAUse())
 }
 
@@ -101,10 +104,12 @@ class Configuration extends TaintTracking::Configuration {
   }
 
   override predicate isAdditionalTaintStep(DataFlow::Node pred, DataFlow::Node succ) {
+
     exists(Write w | w.writesField(succ, _, pred))
   }
 
   override predicate isSanitizerOut(DataFlow::Node node) {
+
     exists(StringOps::Concatenation conc, int i, int j | i < j |
       node = conc.getOperand(j) and
       exists(conc.getOperand(i))
@@ -137,7 +142,11 @@ predicate isBadRedirectCheckOrWrapper(DataFlow::Node check, SsaWithFields v) {
  * backslash in its second position.
  */
 predicate isBadRedirectCheck(DataFlow::Node check, SsaWithFields v) {
+
   check = checkForLeadingSlash(v) and
+
+
+
   not (
     isCheckedForSecondSlash(v.similar()) and
     isCheckedForSecondBackslash(v.similar())
@@ -157,8 +166,10 @@ predicate isBadRedirectCheckWrapper(DataFlow::Node check, FuncDef f, FunctionInp
 from DataFlow::Node n, string type
 where 
 exists(
-  Configuration c |
-  c.isSource(n) and type = c + "Source" or
-  c.isSink(n) and type = c + "Sink"
+  Configuration c, string qid |
+  qid = "go/bad-redirect-check: " and (
+    c.isSource(n) and type = qid + c + "Source" or
+    c.isSink(n) and type = qid + c + "Sink"
+  )
 )
 select n, type

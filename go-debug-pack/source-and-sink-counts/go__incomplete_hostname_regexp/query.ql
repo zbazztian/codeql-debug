@@ -12,7 +12,10 @@ predicate isIncompleteHostNameRegexpPattern(string pattern, string hostPart) {
   hostPart =
     pattern
         .regexpCapture("(?i).*?" +
+
             "(?<!\\\\)[.]" +
+
+
             "(([():|?a-z0-9-]+(\\\\)?[.])?" + commonTLD() + ")" + ".*", 1)
 }
 
@@ -94,8 +97,10 @@ class Config extends DataFlow::Configuration {
 from string type, int amount
 where 
 exists(
-  Config c |
-  amount = count(DataFlow::Node n | c.isSource(n)) and type = c + "Source" or
-  amount = count(DataFlow::Node n | c.isSink(n)) and type = c + "Sink"
+  Config c, string qid |
+  qid = "go/incomplete-hostname-regexp: " and (
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+  )
 )
 select type, amount
