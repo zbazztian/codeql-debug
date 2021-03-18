@@ -557,12 +557,11 @@ class ObjectCreateNullCall extends CallNode {
 }
 
 from DataFlow::Node n, string type
-where 
-exists(
-  PropNameTracking c, string qid |
-  qid = "js/prototype-pollution-utility: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/prototype-pollution-utility" and (
+  exists(
+    PropNameTracking c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

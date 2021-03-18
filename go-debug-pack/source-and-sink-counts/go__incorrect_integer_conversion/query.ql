@@ -181,12 +181,11 @@ string describeBitSize(int bitSize, int intTypeBitSize) {
 }
 
 from string type, int amount
-where 
-exists(
-  ConversionWithoutBoundsCheckConfig c, string qid |
-  qid = "go/incorrect-integer-conversion: " and (
-    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + c + "Source" or
-    amount = count(DataFlow::Node n | c.isSink(n)) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/incorrect-integer-conversion" and (
+  exists(
+    ConversionWithoutBoundsCheckConfig c |
+    amount = count(DataFlow::Node n | c.isSource(n)) and type = qid + " | " + c + " | " + "Source" or
+    amount = count(DataFlow::Node n | c.isSink(n))   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select type, amount

@@ -1,5 +1,5 @@
 name: "CodeQL Debugging"
-on: [push]
+on: workflow_dispatch
 
 jobs:
   debug:

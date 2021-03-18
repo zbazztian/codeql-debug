@@ -11,12 +11,11 @@ import go
 import semmle.go.security.ExternalAPIs
 
 from DataFlow::Node n, string type
-where 
-exists(
-  UntrustedDataToUnknownExternalAPIConfig c, string qid |
-  qid = "go/untrusted-data-to-unknown-external-api: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/untrusted-data-to-unknown-external-api" and (
+  exists(
+    UntrustedDataToUnknownExternalAPIConfig c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

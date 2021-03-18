@@ -25,12 +25,11 @@ string prettyPrintDangerousCharaters(Sink sink) {
 }
 
 from DataFlow::Node n, string type
-where 
-exists(
-  Configuration c, string qid |
-  qid = "js/incomplete-html-attribute-sanitization: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/incomplete-html-attribute-sanitization" and (
+  exists(
+    Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

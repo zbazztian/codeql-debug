@@ -12,12 +12,11 @@ import go
 import EmailInjection::EmailInjection
 
 from DataFlow::Node n, string type
-where 
-exists(
-  Configuration c, string qid |
-  qid = "go/email-injection: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/email-injection" and (
+  exists(
+    Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

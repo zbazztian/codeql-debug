@@ -11,12 +11,11 @@ import javascript
 import semmle.javascript.security.dataflow.PrototypePollutingAssignment::PrototypePollutingAssignment
 
 from DataFlow::Node n, string type
-where 
-exists(
-  Configuration c, string qid |
-  qid = "js/prototype-polluting-assignment: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/prototype-polluting-assignment" and (
+  exists(
+    Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

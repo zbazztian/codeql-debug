@@ -12,12 +12,11 @@ import semmle.javascript.security.dataflow.BrokenCryptoAlgorithm::BrokenCryptoAl
 import semmle.javascript.security.SensitiveActions
 
 from DataFlow::Node n, string type
-where 
-exists(
-  Configuration c, string qid |
-  qid = "js/weak-cryptographic-algorithm: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/weak-cryptographic-algorithm" and (
+  exists(
+    Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

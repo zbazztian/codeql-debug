@@ -13,12 +13,11 @@ import semmle.javascript.security.dataflow.PrototypePollution::PrototypePollutio
 import semmle.javascript.dependencies.Dependencies
 
 from DataFlow::Node n, string type
-where 
-exists(
-  Configuration c, string qid |
-  qid = "js/prototype-pollution: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/prototype-pollution" and (
+  exists(
+    Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

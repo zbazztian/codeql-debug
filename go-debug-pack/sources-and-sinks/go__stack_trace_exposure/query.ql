@@ -66,12 +66,11 @@ class StackTraceExposureConfig extends TaintTracking::Configuration {
 }
 
 from DataFlow::Node n, string type
-where 
-exists(
-  StackTraceExposureConfig c, string qid |
-  qid = "go/stack-trace-exposure: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/stack-trace-exposure" and (
+  exists(
+    StackTraceExposureConfig c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

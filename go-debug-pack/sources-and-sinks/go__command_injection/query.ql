@@ -11,20 +11,17 @@ import go
 import semmle.go.security.CommandInjection
 
 from DataFlow::Node n, string type
-where 
-exists(
-  CommandInjection::DoubleDashSanitizingConfiguration c, string qid |
-  qid = "go/command-injection: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/command-injection" and (
+  exists(
+    CommandInjection::Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
-or
-exists(
-  CommandInjection::Configuration c, string qid |
-  qid = "go/command-injection: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+  or
+  exists(
+    CommandInjection::DoubleDashSanitizingConfiguration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

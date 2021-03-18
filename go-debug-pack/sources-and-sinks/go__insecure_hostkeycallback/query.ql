@@ -100,12 +100,11 @@ predicate hostCheckReachesSink(DataFlow::PathNode sink) {
 }
 
 from DataFlow::Node n, string type
-where 
-exists(
-  HostKeyCallbackAssignmentConfig c, string qid |
-  qid = "go/insecure-hostkeycallback: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/insecure-hostkeycallback" and (
+  exists(
+    HostKeyCallbackAssignmentConfig c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

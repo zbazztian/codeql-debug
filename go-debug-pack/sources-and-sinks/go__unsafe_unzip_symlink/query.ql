@@ -12,12 +12,11 @@ import go
 import semmle.go.security.UnsafeUnzipSymlink::UnsafeUnzipSymlink
 
 from DataFlow::Node n, string type
-where 
-exists(
-  SymlinkConfiguration c, string qid |
-  qid = "go/unsafe-unzip-symlink: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/unsafe-unzip-symlink" and (
+  exists(
+    SymlinkConfiguration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

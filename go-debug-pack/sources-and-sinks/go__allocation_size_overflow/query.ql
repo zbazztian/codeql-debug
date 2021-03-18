@@ -12,12 +12,11 @@ import go
 import semmle.go.security.AllocationSizeOverflow
 
 from DataFlow::Node n, string type
-where 
-exists(
-  AllocationSizeOverflow::Configuration c, string qid |
-  qid = "go/allocation-size-overflow: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/allocation-size-overflow" and (
+  exists(
+    AllocationSizeOverflow::Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

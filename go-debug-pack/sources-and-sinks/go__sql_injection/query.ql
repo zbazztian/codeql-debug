@@ -11,12 +11,11 @@ import go
 import semmle.go.security.SqlInjection
 
 from DataFlow::Node n, string type
-where 
-exists(
-  SqlInjection::Configuration c, string qid |
-  qid = "go/sql-injection: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/sql-injection" and (
+  exists(
+    SqlInjection::Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

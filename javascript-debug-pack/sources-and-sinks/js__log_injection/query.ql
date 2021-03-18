@@ -12,12 +12,11 @@ import javascript
 import semmle.javascript.security.dataflow.LogInjection::LogInjection
 
 from DataFlow::Node n, string type
-where 
-exists(
-  LogInjectionConfiguration c, string qid |
-  qid = "js/log-injection: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/log-injection" and (
+  exists(
+    LogInjectionConfiguration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

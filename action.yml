@@ -15,5 +15,5 @@ runs:
   steps:
     - name: test
       run: |
-        python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ inputs.codeql-path }}" "${{ inputs.db-path }}" "${{ github.repository }}" "${{ github.sha }}"
+        python3 "${{ github.action_path }}/process.py" "${{ inputs.language }}" "${{ github.repository }}" "${{ github.sha }}" "${{ inputs.codeql-path }}" "${{ inputs.db-path }}" ""
       shell: bash

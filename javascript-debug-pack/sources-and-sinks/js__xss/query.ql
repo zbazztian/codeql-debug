@@ -11,12 +11,11 @@ import javascript
 import semmle.javascript.security.dataflow.DomBasedXss::DomBasedXss
 
 from DataFlow::Node n, string type
-where 
-exists(
-  DataFlow::Configuration c, string qid |
-  qid = "js/xss: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "js/xss" and (
+  exists(
+    DataFlow::Configuration c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

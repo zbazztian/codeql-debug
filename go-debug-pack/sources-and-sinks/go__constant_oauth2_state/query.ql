@@ -190,28 +190,23 @@ predicate seemsLikeDoneWithinATerminal(DataFlow::CallNode authCodeURLCall) {
 }
 
 from DataFlow::Node n, string type
-where 
-exists(
-  ConstantStateFlowConf c, string qid |
-  qid = "go/constant-oauth2-state: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+where exists(string qid | qid = "go/constant-oauth2-state" and (
+  exists(
+    ConstantStateFlowConf c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
-or
-exists(
-  FlowToPrint c, string qid |
-  qid = "go/constant-oauth2-state: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+  or
+  exists(
+    PrivateUrlFlowsToAuthCodeUrlCall c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
-or
-exists(
-  PrivateUrlFlowsToAuthCodeUrlCall c, string qid |
-  qid = "go/constant-oauth2-state: " and (
-    c.isSource(n) and type = qid + c + "Source" or
-    c.isSink(n) and type = qid + c + "Sink"
+  or
+  exists(
+    FlowToPrint c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
-)
+))
 select n, type

@@ -4,6 +4,7 @@ import os.path
 import subprocess
 import csv
 import os
+import shutil
 
 def remove(fpath):
   if os.path.isfile(fpath):
@@ -17,14 +18,15 @@ def get(array, i, default):
 
 here = os.path.dirname(sys.argv[0])
 lang = sys.argv[1]
-runner_tool_cache = os.environ['RUNNER_TOOL_CACHE']
+repo_id = sys.argv[2]
+sha = sys.argv[3]
 codeql_executable = get(
   sys.argv,
-  2,
+  4,
   get(
     glob.glob(
       os.path.join(
-        runner_tool_cache,
+        os.environ.get('RUNNER_TOOL_CACHE', ''),
         'CodeQL',
         '*',
         'x64',
@@ -36,11 +38,26 @@ codeql_executable = get(
     ''
   )
 )
-runner_temp = os.environ['RUNNER_TEMP']
-dbpath = get(sys.argv, 3, os.path.join(runner_temp, 'codeql_databases', lang))
-repo_id = get(sys.argv, 4, None)
-sha = get(sys.argv, 5, None)
-server_url = os.environ['GITHUB_SERVER_URL']
+dbpath = get(sys.argv, 5, os.path.join(os.environ.get('RUNNER_TEMP', ''), 'codeql_databases', lang))
+server_url = get(sys.argv, 6, os.environ.get('GITHUB_SERVER_URL', 'https://github.com'))
+ql_searchpath = get(sys.argv, 7, '')
+
+if not os.path.isdir(dbpath):
+  print('Given path is not a database: ' + dbpath)
+  sys.exit(1)
+
+if not os.path.isfile(codeql_executable):
+  print('Given path is not a CodeQL executable: ' + codeql_executable)
+  sys.exit(1)
+
+print('codeql executable: ' + codeql_executable, flush=True)
+print('codeql database: ' + dbpath, flush=True)
+print('codeql language: ' + lang, flush=True)
+print('repository id: ' + repo_id, flush=True)
+print('repository sha: ' + sha, flush=True)
+print('github server url: ' + server_url, flush=True)
+print('ql search path: ' + ql_searchpath, flush=True)
+
 
 def codeql(*args):
   args = [codeql_executable] + list(args)
@@ -58,26 +75,15 @@ def codeql(*args):
     print(cpe.output.decode())
     print('stderr:')
     print(cpe.stderr.decode(), flush=True)
+    raise
 
-if not os.path.isdir(dbpath):
-  print('Given path is not a database: ' + dbpath)
-  sys.exit(1)
-
-if not os.path.isfile(codeql_executable):
-  print('Given path is not a CodeQL executable: ' + codeql_executable)
-  sys.exit(1)
-
-print('codeql executable: ' + codeql_executable, flush=True)
-print('codeql database: ' + dbpath, flush=True)
-print('codeql language: ' + lang, flush=True)
-print('repository id: ' + repo_id, flush=True)
-print('sha: ' + sha, flush=True)
 
 # run some diagnostic output
 codeql('version')
 codeql('resolve', 'qlpacks')
 
 debug_results_dir = 'codeql-debug-results'
+shutil.rmtree(debug_results_dir, ignore_errors=True)
 os.makedirs(debug_results_dir)
 sources_and_sinks_csv = os.path.join(debug_results_dir, 'sources_and_sinks_' + lang + '.csv')
 source_and_sink_counts_file = os.path.join(debug_results_dir, 'source_and_sink_counts_' + lang)
@@ -95,6 +101,7 @@ for qlf in glob.glob(os.path.join(
 )):
   codeql(
     'query', 'run',
+    '--search-path', ql_searchpath,
     '--output', source_and_sink_counts_bqrs,
     '--threads', '0',
     '-d', dbpath,
@@ -120,6 +127,7 @@ for qlf in glob.glob(os.path.join(
 
 codeql(
   'database', 'analyze',
+  '--search-path', ql_searchpath,
   '--output', sources_and_sinks_csv,
   '--format', 'csv',
   '--threads', '0',
