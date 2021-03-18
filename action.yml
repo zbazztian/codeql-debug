@@ -3,7 +3,7 @@ description: 'Debug Analysis'
 inputs:
   codeql-path:
     description: 'Path to the CodeQL executable'
-    required: true
+    required: false
   language:
     description: 'Language of the database to analyze'
     required: true

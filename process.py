@@ -175,10 +175,10 @@ with open(os.path.join(debug_results_dir, lang + '.html'), 'w') as f:
   f.write('<h1>Details</h1>\n')
 
   for n in sorted_node_types:
-    f.write('<h2 id="{nodetype}">{nodetype} (source code only)</h2>\n'.format(nodetype=n))
+    f.write('<h2 id="{nodetype}">{nodetype} (code-only results)</h2>\n'.format(nodetype=n))
     for r in nodes.get(n, []):
       f.write(
-        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">link</a><br>\n'.format(
+        '<a href="{serverurl}/{repo_id}/blob/{sha}{fname}/#L{startline}-L{endline}">{fname}:{startline}</a><br>\n'.format(
           serverurl=server_url,
           repo_id=repo_id,
           sha=sha,
