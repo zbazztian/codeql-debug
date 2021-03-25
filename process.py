@@ -374,5 +374,3 @@ with open(join(outdir, lang + '.html'), 'w') as f:
 
   f.write('</table>\n')
   f.write('</body>\n</html>\n')
-
-
