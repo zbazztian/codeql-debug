@@ -117,6 +117,44 @@ debug_pack = lang + '-debug-pack'
 debug_pack_path = join(here, debug_pack)
 
 
+def get_dependencies():
+  result = []
+  qlf = join(debug_pack_path, 'dependencies.ql')
+
+  codeql(
+    'database', 'run-queries',
+    '--search-path', ql_searchpath,
+    '--threads', '0',
+    '--rerun',
+    dbpath,
+    qlf
+  )
+
+  relqlf = relpath(qlf, here)
+  bqrsf = join(
+    dbpath,
+    'results',
+    change_ext('.ql', '.bqrs', relqlf)
+  )
+  csvf = change_ext('.bqrs', '.csv', bqrsf)
+  codeql(
+    'bqrs', 'decode',
+    '--no-titles',
+    '--format', 'csv',
+    '--output', csvf,
+    bqrsf
+  )
+
+  with open(csvf, 'r') as f:
+    for row in csv.reader(f):
+      depname = row[0]
+      count = row[1]
+      result.append((depname, count))
+
+  remove(csvf)
+
+  return result
+
 
 def get_source_and_sink_counts():
   result = {}
@@ -226,6 +264,7 @@ def get_analysis_runs():
   return sorted(result, key=lambda e: e[1], reverse=True)
 
 
+dependencies = get_dependencies()
 runs = get_analysis_runs()
 node_counts = get_source_and_sink_counts()
 nodes = get_sources_and_sinks()
@@ -269,6 +308,22 @@ with open(join(outdir, lang + '.html'), 'w') as f:
           )
         )
       df.write('</body>\n</html>\n')
+
+  f.write('</table>\n')
+
+  # dependencies
+  f.write('<h1>Dependencies</h1>\n')
+  f.write('<table>\n')
+  f.write('<tr>\n')
+  f.write('  <th align="left">Name</th>\n')
+  f.write('  <th align="left">#References</th>\n')
+  f.write('</tr>\n')
+
+  for d in dependencies:
+    f.write('<tr>\n')
+    f.write('  <td>{name}</td>\n'.format(name=d[0]))
+    f.write('  <td>{count}</td>\n'.format(count=d[1]))
+    f.write('</tr>\n')
 
   f.write('</table>\n')
 
