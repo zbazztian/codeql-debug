@@ -1,6 +1,10 @@
 # CodeQL Debug Action
 
-Add this action to an existing CodeQL analysis workflow to generate an html report for all recognized sources and sinks of the standard set of security queries.
+Add this action to an existing CodeQL analysis workflow to generate an html report including
+* recognized sources and sinks of the standard set of security queries,
+* dependencies / frameworks used by the project,
+* analysis performance statistics of previous analyses and
+* generated log files from previous analyses.
 
 ## Example
 
