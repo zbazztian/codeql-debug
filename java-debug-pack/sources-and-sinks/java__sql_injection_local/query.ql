@@ -35,5 +35,11 @@ where exists(string qid | qid = "java/sql-injection-local" and (
     c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
     c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
   )
+  or
+  exists(
+    QueryInjectionFlowConfig c |
+    c.isSource(n) and type = qid + " | " + c + " | " + "Source" or
+    c.isSink(n)   and type = qid + " | " + c + " | " + "Sink"
+  )
 ))
 select n, type

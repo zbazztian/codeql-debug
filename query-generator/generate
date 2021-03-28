@@ -4,12 +4,16 @@ import re
 import sys
 import shutil
 import os
+from os.path import join, isfile, dirname
 
+PATTERN_SIMPLE_IMPORT = re.compile('^\s*import\s+([a-zA-Z0-9_]+)\s*$', flags=re.MULTILINE)
 PATTERN_COMMENT_LINES = re.compile('^\s*//.*$', flags=re.MULTILINE)
 PATTERN_METADATA = re.compile('^\s*/\*\*(.(?!\*/))*.\*/', flags=re.DOTALL)
 PATTERN_METADATA_LINE = re.compile('@(\S+)\s+(\S+)')
 PATTERN_FROM_WHERE_SELECT = re.compile('^\s*from\s+(.*)\s+where\s+(.*)\s+select\s+(.*)\s*', re.DOTALL | re.MULTILINE)
-PATTERN_CLASS_DEF = re.compile('^\s*class\s+(\S+)\s+extends\s+(\S+)\s+{', flags=re.MULTILINE | re.DOTALL)
+CONFIG_CLASS = 'class\s+(\S+)\s+extends\s+(\S+Configuration)\s+{'
+PATTERN_PUBLIC_CONFIG_CLASS_DEF = re.compile('^\s*{config_class}'.format(config_class=CONFIG_CLASS), flags=re.MULTILINE | re.DOTALL)
+PATTERN_PRIVATE_CONFIG_CLASS_DEF = re.compile('^\s*private\s+{config_class}'.format(config_class=CONFIG_CLASS), flags=re.MULTILINE | re.DOTALL)
 PATTERN_HASFLOW_CALL = re.compile('(\S+)\.hasFlow(Path)?\s*\(', flags=re.DOTALL)
 PATTERN_PATHGRAPH_IMPORT = re.compile('^\s*import\s+(\S*PathGraph)', flags=re.MULTILINE | re.DOTALL)
 
@@ -53,7 +57,7 @@ SSC_BODY_CLAUSE ='''
 
 lang = sys.argv[1]
 fname = sys.argv[2]
-fdir = os.path.dirname(fname)
+fdir = dirname(fname)
 with open(fname, 'r') as f:
   contents = f.read()
 
@@ -72,17 +76,17 @@ def get_metadata(querystring):
   return result
 
 
+def get_simple_imports(querystring):
+  return PATTERN_SIMPLE_IMPORT.findall(querystring)
+
+
 def from_where_select(querystring):
   m = PATTERN_FROM_WHERE_SELECT.search(querystring)
   return (m.group(1), m.group(2), m.group(3)) if m else (None, None, None)
 
 
 def get_flow_config_types_from_class_definitions(querystring):
-  results = []
-  for m in PATTERN_CLASS_DEF.findall(querystring):
-    if m[1].endswith('Configuration'):
-      results.append(m[0])
-  return results
+  return [m[0] for m in PATTERN_PUBLIC_CONFIG_CLASS_DEF.findall(querystring)]
 
 
 def get_flow_config_types_from_query_body(querystring):
@@ -101,45 +105,64 @@ def get_flow_config_types_from_query_body(querystring):
   return result
 
 
-def get_flow_config_types(querystring):
-  return sorted(set(
-    get_flow_config_types_from_query_body(querystring) +
-    get_flow_config_types_from_class_definitions(querystring)
-  ))
+def get_flow_config_types(fname, querystring):
+  result = set()
+  for si in get_simple_imports(querystring):
+    qll_fname = join(dirname(fname), si + ".qll")
+
+    if isfile(qll_fname):
+      qll_contents = ''
+
+      with open(qll_fname, 'r') as f:
+        # make private Configuration classes public (this is a very shaky approach, but works for now)
+        qll_contents = PATTERN_PRIVATE_CONFIG_CLASS_DEF.sub(r'class \1 extends \2 {', f.read())
+
+      with open(qll_fname, 'w') as f:
+        f.write(qll_contents)
+
+      result.update(get_flow_config_types_from_class_definitions(qll_contents))
+
+  result.update(get_flow_config_types_from_query_body(querystring))
+  result.update(get_flow_config_types_from_class_definitions(querystring))
+
+  return sorted(result)
 
 
 metadata = get_metadata(contents)
 
 if metadata.get('kind', 'UNDEFINED') == 'path-problem':
-  fcts = get_flow_config_types(contents)
+  fcts = get_flow_config_types(fname, contents)
 
-  if fcts:
-    name = metadata['id'].replace('/', '__').replace('-', '_')
-    ssdir = os.path.join('sources-and-sinks', name)
-    sscdir = os.path.join('source-and-sink-counts', name)
-    os.makedirs(ssdir, exist_ok=True)
-    os.makedirs(sscdir, exist_ok=True)
+  if not fcts:
+    print('WARNING: Did not find any flow configuration types for "{fname}"!'.format(fname=fname))
+    sys.exit(0)
 
-    # copy library files shipping with the given query
-    for f in os.listdir(fdir):
-      if f.endswith('.qll'):
-        shutil.copyfile(os.path.join(fdir, f), os.path.join(ssdir, f))
-        shutil.copyfile(os.path.join(fdir, f), os.path.join(sscdir, f))
+  name = metadata['id'].replace('/', '__').replace('-', '_')
+  ssdir = join('sources-and-sinks', name)
+  sscdir = join('source-and-sink-counts', name)
+  os.makedirs(ssdir, exist_ok=True)
+  os.makedirs(sscdir, exist_ok=True)
 
-    ssqlname = os.path.join(ssdir, 'query.ql')
-    sscqlname = os.path.join(sscdir, 'query.ql')
+  # copy library files shipping with the given query
+  for f in os.listdir(fdir):
+    if f.endswith('.qll'):
+      shutil.copyfile(join(fdir, f), join(ssdir, f))
+      shutil.copyfile(join(fdir, f), join(sscdir, f))
 
-    with open(ssqlname, 'w') as f:
-      f.write(
-        SS_QLHEADER.format(
-          id=metadata['id'] + '-sources-and-sinks'
-        )
+  ssqlname = join(ssdir, 'query.ql')
+  sscqlname = join(sscdir, 'query.ql')
+
+  with open(ssqlname, 'w') as f:
+    f.write(
+      SS_QLHEADER.format(
+        id=metadata['id'] + '-sources-and-sinks'
       )
-      f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
-      body = '  or'.join([SS_BODY_CLAUSE.format(config=t) for t in fcts])
-      f.write(SS_QLBODY.format(body=body, qid=metadata['id']))
+    )
+    f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
+    body = '  or'.join([SS_BODY_CLAUSE.format(config=t) for t in fcts])
+    f.write(SS_QLBODY.format(body=body, qid=metadata['id']))
 
-    with open(sscqlname, 'w') as f:
-      f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
-      body = '  or'.join([SSC_BODY_CLAUSE.format(config=t) for t in fcts])
-      f.write(SSC_QLBODY.format(body=body, qid=metadata['id']))
+  with open(sscqlname, 'w') as f:
+    f.write(PATTERN_FROM_WHERE_SELECT.sub('', PATTERN_METADATA.sub('', contents)))
+    body = '  or'.join([SSC_BODY_CLAUSE.format(config=t) for t in fcts])
+    f.write(SSC_QLBODY.format(body=body, qid=metadata['id']))

@@ -93,7 +93,11 @@ def codeql(*args):
 
 # run some diagnostic output
 codeql('version')
-codeql('resolve', 'qlpacks')
+codeql(
+  'resolve',
+  'qlpacks',
+  '--search-path', ql_searchpath
+)
 
 # create output directories
 outdir = 'codeql-debug-results'
