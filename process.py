@@ -75,6 +75,7 @@ print('ql search path: ' + ql_searchpath, flush=True)
 def codeql(*args):
   args = [codeql_executable] + list(args)
   print(' '.join(args), flush=True)
+  output = None
   try:
     output = subprocess.run(
       args,
@@ -85,7 +86,8 @@ def codeql(*args):
   except subprocess.CalledProcessError as cpe:
     print('Command failed with exit code: ' + str(cpe.returncode))
     print('stdout:')
-    print(cpe.output.decode())
+    output = cpe.output
+    print(output.decode())
     print('stderr:')
     print(cpe.stderr.decode(), flush=True)
     raise
