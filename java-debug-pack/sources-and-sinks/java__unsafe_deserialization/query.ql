@@ -9,7 +9,7 @@
 
 import java
 import semmle.code.java.dataflow.FlowSources
-import semmle.code.java.security.UnsafeDeserialization
+import semmle.code.java.security.UnsafeDeserializationQuery
 
 
 class UnsafeDeserializationConfig extends TaintTracking::Configuration {
